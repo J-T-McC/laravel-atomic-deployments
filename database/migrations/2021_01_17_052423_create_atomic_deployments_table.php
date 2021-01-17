@@ -19,7 +19,7 @@ class CreateAtomicDeploymentsTable extends Migration
             $table->string('build_path');
             $table->string('deployment_path');
             $table->string('web_root');
-            $table->unsignedTinyInteger('deployment_status')->default(1);
+            $table->unsignedTinyInteger('deployment_status');
             $table->timestamps();
         });
     }

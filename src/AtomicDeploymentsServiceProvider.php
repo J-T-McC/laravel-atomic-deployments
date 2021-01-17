@@ -11,13 +11,12 @@ class AtomicDeploymentsServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        $this->registerPublishables();
-        $this->registerCommands();
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
     public function register()
     {
+        $this->registerPublishables();
         $this->mergeConfigFrom(__DIR__ . '/../config/atomic-deployments.php', 'atomic-deployments');
         $this->registerCommands();
     }
