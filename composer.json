@@ -1,0 +1,28 @@
+{
+    "name": "jtmcc/atomic-deployments",
+    "description": "Copy and link web path to latest build",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tyson McCarney",
+            "email": "info@tysonmccarney.com",
+            "homepage": "https://tysonmccarney.com",
+            "role": "Developer"
+        }
+    ],
+    "require-dev": {
+        "laravel/framework": "^8.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "JTMcC\\AtomicDeployments\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JTMcC\\AtomicDeployments\\AtomicDeploymentsServiceProvider"
+            ]
+        }
+    }
+}
