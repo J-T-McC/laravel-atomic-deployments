@@ -3,15 +3,18 @@
 namespace JTMcC\AtomicDeployments\Services;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
-
-use Illuminate\Support\Facades\Log;
+use JTMcC\AtomicDeployments\Models\AtomicDeployment as Model;
+use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 
 class AtomicDeployment
 {
 
     protected bool $testRun;
+    protected ?Model $model = null;
     protected string $webRoot;
     protected string $buildPath;
     protected string $deploymentPath;
@@ -54,6 +57,8 @@ class AtomicDeployment
         $this->setDeploymentPath();
         Log::info("Set deployment path to {$this->deploymentPath}");
 
+        $this->setDeploymentStatus(DeploymentStatus::RUNNING);
+
         $this->createDeploymentDirectory();
         Log::info('Created deployment directory');
 
@@ -70,12 +75,30 @@ class AtomicDeployment
             Log::info("Creating web root symbolic link: {$this->webRoot} -> {$this->deploymentPath}");
             $this->linkWebRoot();
             Log::info("Link created");
+
+            $this->setDeploymentStatus(DeploymentStatus::SUCCESS);
+
         } catch (\Throwable $e) {
             $this->rollback();
         }
 
         Log::info("Done");
 
+    }
+
+    public function setDeploymentStatus(int $status) {
+        if($this->model) {
+            $this->model->update(['deployment_status' => $status]);
+        }
+        else {
+            $this->model = Model::create([
+                'commit_hash' => $this->deploymentDirectory,
+                'build_path' => $this->buildPath,
+                'deployment_path' => $this->deploymentPath,
+                'web_root' => $this->webRoot,
+                'deployment_status' => $status,
+            ]);
+        }
     }
 
     /**
@@ -192,6 +215,8 @@ class AtomicDeployment
 
             return;
         }
+
+        $this->setDeploymentStatus(DeploymentStatus::FAILED);
 
         Log::info('Rollback not required');
     }
