@@ -70,6 +70,10 @@ class AtomicDeployment
 
     public function setDeploymentStatus(int $status)
     {
+        if($this->testRun) {
+            return;
+        }
+
         if ($this->model) {
             $this->model->update(['deployment_status' => $status]);
         } else {
