@@ -32,53 +32,35 @@ class AtomicDeployment
         register_shutdown_function([$this, 'shutdown']);
     }
 
-
-    /**
-     * @throws ExecuteFailedException
-     * @throws InvalidPathException
-     */
     public function run()
     {
         Log::info('Running Deployment...');
-
         Log::info("Checking for previous deployment");
 
-        if ($this->initialDeploymentPath = $this->getCurrentDeploymentPath()) {
-            Log::info("Previous deployment detected at {$this->initialDeploymentPath}");
-            Log::info("Storing path for rollback");
-        }
-        else {
-            Log::info("No previous deployment for this web root");
-        }
-
-        $this->setDeploymentDirectoryName();
-        Log::info("Set deployment directory to {$this->deploymentDirectory}");
-
-        $this->setDeploymentPath();
-        Log::info("Set deployment path to {$this->deploymentPath}");
-
-        $this->setDeploymentStatus(DeploymentStatus::RUNNING);
-
-        $this->createDeploymentDirectory();
-        Log::info('Created deployment directory');
-
-        $this->confirmPathsExist(
-            $this->buildPath,
-            $this->deploymentPath
-        );
-
-        Log::info('Copying build files to production folder');
-        $this->copyDeploymentContents();
-        Log::info('Done copying');
-
         try {
-            Log::info("Creating web root symbolic link: {$this->webRoot} -> {$this->deploymentPath}");
-            $this->linkWebRoot();
-            Log::info("Link created");
 
+            if ($this->initialDeploymentPath = $this->getCurrentDeploymentPath()) {
+                Log::info("Previous deployment detected at {$this->initialDeploymentPath}");
+                Log::info("Storing path for rollback");
+            } else {
+                Log::info("No previous deployment for this web root");
+            }
+
+            $this->setDeploymentDirectoryName();
+            $this->setDeploymentPath();
+            $this->setDeploymentStatus(DeploymentStatus::RUNNING);
+            $this->createDeploymentDirectory();
+            $this->confirmPathsExist(
+                $this->buildPath,
+                $this->deploymentPath
+            );
+            $this->copyDeploymentContents();
+            $this->linkWebRoot();
             $this->setDeploymentStatus(DeploymentStatus::SUCCESS);
 
         } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
             $this->rollback();
         }
 
@@ -86,11 +68,11 @@ class AtomicDeployment
 
     }
 
-    public function setDeploymentStatus(int $status) {
-        if($this->model) {
+    public function setDeploymentStatus(int $status)
+    {
+        if ($this->model) {
             $this->model->update(['deployment_status' => $status]);
-        }
-        else {
+        } else {
             $this->model = Model::create([
                 'commit_hash' => $this->deploymentDirectory,
                 'build_path' => $this->buildPath,
@@ -107,7 +89,7 @@ class AtomicDeployment
      */
     private function confirmPathsExist(string ...$paths): void
     {
-        if(!$this->testRun) {
+        if (!$this->testRun) {
             foreach ($paths as $path) {
                 if (empty(realpath($path))) {
                     throw new InvalidPathException("{$path} is not a real path");
@@ -123,6 +105,8 @@ class AtomicDeployment
             $mode = 0775,
             $recursive = true
         );
+
+        Log::info('Created deployment directory');
     }
 
     /**
@@ -130,7 +114,9 @@ class AtomicDeployment
      */
     public function copyDeploymentContents(): void
     {
+        Log::info('Copying build files to production folder');
         $this->executeCommand("rsync -aW --no-compress {$this->buildPath}/ {$this->deploymentPath}/", false);
+        Log::info('Done copying');
     }
 
     /**
@@ -138,7 +124,9 @@ class AtomicDeployment
      */
     public function linkWebRoot(): void
     {
+        Log::info("Creating web root symbolic link: {$this->webRoot} -> {$this->deploymentPath}");
         $this->executeCommand("ln -sf {$this->deploymentPath} {$this->webRoot}", false);
+        Log::info("Link created");
     }
 
     /**
@@ -147,6 +135,7 @@ class AtomicDeployment
     public function setDeploymentDirectoryName(): void
     {
         $this->deploymentDirectory = $this->executeCommand('git log --pretty="%h" -n1 HEAD', true);
+        Log::info("Set deployment directory to {$this->deploymentDirectory}");
     }
 
     /**
@@ -161,6 +150,7 @@ class AtomicDeployment
     private function setDeploymentPath(): void
     {
         $this->deploymentPath = implode(DIRECTORY_SEPARATOR, [$this->deploymentsPath, $this->deploymentDirectory]);
+        Log::info("Set deployment path to {$this->deploymentPath}");
     }
 
     /**
@@ -170,7 +160,7 @@ class AtomicDeployment
      */
     private function createDirectory($path, $mode = 0775, $recursive = false): void
     {
-        if($this->testRun) {
+        if ($this->testRun) {
             Log::info("Create directory at {$path}");
             return;
         }
@@ -230,7 +220,7 @@ class AtomicDeployment
     private function executeCommand(string $command, bool $ignoreTestMode = false)
     {
 
-        if($this->testRun && !$ignoreTestMode) {
+        if ($this->testRun && !$ignoreTestMode) {
             Log::info($command);
             return '';
         }
@@ -250,7 +240,7 @@ class AtomicDeployment
 
     public function shutdown()
     {
-        if($error = error_get_last()) {
+        if ($error = error_get_last()) {
             Log::critical("Error detected during shutdown, requesting rollback");
             $this->rollback();
         }
