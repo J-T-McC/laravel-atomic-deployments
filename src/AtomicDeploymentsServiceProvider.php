@@ -5,6 +5,7 @@ namespace JTMcC\AtomicDeployments;
 use Illuminate\Support\ServiceProvider;
 
 use JTMcC\AtomicDeployments\Commands\DeployCommand;
+use JTMcC\AtomicDeployments\Commands\ListCommand;
 
 class AtomicDeploymentsServiceProvider extends ServiceProvider
 {
@@ -36,7 +37,8 @@ class AtomicDeploymentsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                DeployCommand::class
+                DeployCommand::class,
+                ListCommand::class,
             ]);
         }
     }

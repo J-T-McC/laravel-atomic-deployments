@@ -17,10 +17,11 @@ class CreateAtomicDeploymentsTable extends Migration
             $table->id();
             $table->string('commit_hash')->index();
             $table->string('build_path');
-            $table->string('deployment_path');
-            $table->string('web_root');
+            $table->string('deployment_path')->index();
+            $table->string('deployment_link');
             $table->unsignedTinyInteger('deployment_status');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
