@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services;
+namespace Tests\Integration\Services;
 
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
@@ -35,7 +35,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function sets_and_gets_symbolic_deploymeny_link()
+    public function it_sets_and_gets_symbolic_deploymeny_link()
     {
         $atomicDeployment = $this->getAtomicDeployment();
         $atomicDeployment->linkDeployment($this->deploymentLink, $this->deploymentsPath);
@@ -45,7 +45,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function registers_previous_deployment_on_boot()
+    public function it_registers_previous_deployment_on_boot()
     {
         $atomicDeployment = $this->getAtomicDeployment();
         $atomicDeployment->linkDeployment($this->deploymentLink, $this->deploymentsPath);
@@ -58,7 +58,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function creates_atomic_deployment_database_record()
+    public function it_creates_atomic_deployment_database_record()
     {
         $hash = "123abc";
         $atomicDeployment = $this->getAtomicDeployment();
@@ -72,7 +72,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function updates_deployment_status_record()
+    public function it_updates_deployment_status_record()
     {
         $hash = "123abc";
         $atomicDeployment = $this->getAtomicDeployment();
@@ -90,7 +90,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function confirms_symbolic_link()
+    public function it_confirms_symbolic_link()
     {
         $hash = "123abc";
         $atomicDeployment = $this->getAtomicDeployment();

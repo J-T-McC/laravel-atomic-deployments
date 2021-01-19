@@ -11,7 +11,7 @@ class ExecServiceTest extends TestCase
     /**
      * @test
      */
-    public function exec_service_can_create_and_read_symbolic_link()
+    public function it_can_create_and_read_symbolic_link()
     {
         Exec::ln($this->deploymentLink, $this->deploymentsPath);
         $this->assertTrue(Exec::readlink($this->deploymentLink) === $this->deploymentsPath);
@@ -20,7 +20,7 @@ class ExecServiceTest extends TestCase
     /**
      * @test
      */
-    public function exec_service_can_remote_sync_folders()
+    public function it_can_remote_sync_folders()
     {
         $from = $this->buildPath . '/to-move';
         $to = $this->deploymentsPath;

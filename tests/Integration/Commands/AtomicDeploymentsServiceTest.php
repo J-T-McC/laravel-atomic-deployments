@@ -2,6 +2,8 @@
 
 namespace Tests\Integration\Commands;
 
+use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 use Tests\TestCase;
 
 use Illuminate\Support\Facades\Artisan;
@@ -16,7 +18,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function deploy_command_allows_dry_run_with_no_mutations()
+    public function it_allows_dry_run_with_no_mutations()
     {
         Artisan::call('atomic-deployments:deploy --dry-run --directory=test-dir');
 
@@ -36,6 +38,7 @@ class AtomicDeploymentsServiceTest extends TestCase
 
         $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir'));
         $this->assertFalse($this->fileSystem->exists($this->deploymentLink));
+        $this->assertEmpty(AtomicDeployment::all());
 
     }
 
@@ -43,7 +46,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function deploy_command_allows_run_with_mutations()
+    public function it_allows_run_with_mutations()
     {
         Artisan::call('atomic-deployments:deploy --directory=test-dir');
 
@@ -67,6 +70,10 @@ class AtomicDeploymentsServiceTest extends TestCase
 
         $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir/build-contents-folder'));
         $this->assertTrue($this->fileSystem->exists($this->deploymentLink));
+
+        $deployment = AtomicDeployment::first();
+        $this->assertNotEmpty($deployment);
+        $this->assertTrue((int)$deployment->deployment_status === DeploymentStatus::SUCCESS);
 
     }
 
