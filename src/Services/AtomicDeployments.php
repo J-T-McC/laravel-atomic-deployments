@@ -166,10 +166,16 @@ class AtomicDeployments
         );
     }
 
-
-    private function createDeploymentDirectory(): void
+    /**
+     * @throws InvalidPathException
+     */
+    public function createDeploymentDirectory(): void
     {
         Output::info("Creating directory at {$this->deploymentPath}");
+
+        if(strpos($this->deploymentPath, $this->buildPath) !== false) {
+            throw new InvalidPathException('Deployments folder cannot be subdirectory of build folder');
+        }
 
         if ($this->dryRun) {
             Output::warn('Dry run - Skipping creating deployment directory');

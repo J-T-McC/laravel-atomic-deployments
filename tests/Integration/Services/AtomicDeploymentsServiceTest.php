@@ -3,6 +3,7 @@
 namespace Tests\Integration\Services;
 
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
+use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 use JTMcC\AtomicDeployments\Services\AtomicDeployments;
@@ -100,6 +101,29 @@ class AtomicDeploymentsServiceTest extends TestCase
         $this->expectException(ExecuteFailedException::class);
         $atomicDeployment->confirmSymbolicLink('this-should-fail');
         $this->assertTrue($atomicDeployment->confirmSymbolicLink($atomicDeployment->getDeploymentPath()));
+    }
+
+
+    /**
+     * @test
+     */
+    public function it_doesnt_allow_deployments_folder_to_be_subdirectory_of_build_folder()
+    {
+        $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
+        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath . '/deployments');
+
+        $this->expectException(InvalidPathException::class);
+
+        $hash = "123abc";
+        $atomicDeployment = new AtomicDeployments(
+            $this->deploymentLink,
+            $this->buildPath . '/deployments',
+            $this->buildPath,
+            true
+        );
+        $atomicDeployment->setDeploymentDirectory($hash);
+        $atomicDeployment->setDeploymentPath();
+        $atomicDeployment->createDeploymentDirectory();
     }
 
 
