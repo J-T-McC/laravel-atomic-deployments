@@ -26,19 +26,21 @@ class AtomicDeployment extends Model
     protected static function boot()
     {
         parent::boot();
-        static::deleting(function($model) {
-            if($model->isCurrentlyDeployed) {
+        static::deleting(function ($model) {
+            if ($model->isCurrentlyDeployed) {
                 throw new AreYouInsaneException('Cannot delete live deployment');
             }
             $model->deleteDeployment();
         });
     }
 
-    public function scopeSuccessful($query) {
+    public function scopeSuccessful($query)
+    {
         return $query->where('deployment_status', DeploymentStatus::SUCCESS);
     }
 
-    public function getHasDeploymentAttribute() {
+    public function getHasDeploymentAttribute()
+    {
         return File::isDirectory($this->deployment_path);
     }
 
@@ -46,12 +48,14 @@ class AtomicDeployment extends Model
      * @return bool
      * @throws \JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException
      */
-    public function getIsCurrentlyDeployedAttribute() {
+    public function getIsCurrentlyDeployedAttribute()
+    {
         return Exec::readlink($this->deployment_link) === $this->deployment_path;
     }
 
-    public function deleteDeployment() {
-        if($this->hasDeployment) {
+    public function deleteDeployment()
+    {
+        if ($this->hasDeployment) {
             File::deleteDirectory($this->deployment_path);
         }
 

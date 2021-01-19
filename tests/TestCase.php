@@ -31,8 +31,8 @@ abstract class TestCase extends BaseTestCase
         $config = $this->app->config->get('atomic-deployments');
 
         $this->buildPath = static::tmpFolder . $config['build-path'];
-        $this->deploymentsPath = static::tmpFolder. $config['deployments-path'];
         $this->deploymentLink = static::tmpFolder. $config['deployment-link'];
+        $this->deploymentsPath = static::tmpFolder. $config['deployments-path'];
 
         $this->fileSystem->makeDirectory($this->buildPath);
         $this->fileSystem->makeDirectory($this->deploymentsPath);

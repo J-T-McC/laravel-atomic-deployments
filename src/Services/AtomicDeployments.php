@@ -39,6 +39,11 @@ class AtomicDeployments
         $this->initialDeploymentPath = $this->getCurrentDeploymentPath();
     }
 
+    /**
+     * Run full deployment
+     * @param Closure|null $success
+     * @param Closure|null $failed
+     */
     public function deploy(?Closure $success = null, ?Closure $failed = null)
     {
         try {
@@ -82,7 +87,7 @@ class AtomicDeployments
 
     }
 
-    private function updateDeploymentStatus(int $status)
+    public function updateDeploymentStatus(int $status)
     {
         if ($this->dryRun) {
             return;
@@ -99,8 +104,11 @@ class AtomicDeployments
         );
     }
 
+
     /**
+     * Test a path against our symbolic links destination
      * @param string $link
+     * @return bool
      * @throws ExecuteFailedException
      */
     public function confirmSymbolicLink(string $link)
@@ -111,6 +119,7 @@ class AtomicDeployments
             throw new ExecuteFailedException('Expected deployment link to direct to ' . $this->deploymentPath . ' but found ' . $currentDeploymentPath);
         }
         Output::info('Build link confirmed');
+        return true;
     }
 
     private function createDeploymentDirectory(): void
@@ -122,6 +131,7 @@ class AtomicDeployments
     }
 
     /**
+     * Clone our build into our deployment folder
      * @throws ExecuteFailedException
      */
     private function copyDeploymentContents(): void
@@ -134,6 +144,8 @@ class AtomicDeployments
     }
 
     /**
+     * Create Symbolic link for live deployment
+     * Will overwrite previous link
      * @param string $deploymentLink
      * @param string $deploymentPath
      * @throws ExecuteFailedException
@@ -148,6 +160,7 @@ class AtomicDeployments
     }
 
     /**
+     * Sets the directory name for this deployment
      * @param string $name
      */
     public function setDeploymentDirectory(string $name): void
@@ -157,20 +170,37 @@ class AtomicDeployments
     }
 
     /**
+     * Get the current symlinked deployment path
      * @return string
      * @throws ExecuteFailedException
      */
-    private function getCurrentDeploymentPath()
+    public function getCurrentDeploymentPath()
     {
         return Exec::readlink($this->deploymentLink);
     }
 
-    private function setDeploymentPath(): void
+    /**
+     * Sets full deployment path for this deployment
+     */
+    public function setDeploymentPath(): void
     {
         $this->deploymentPath = implode(DIRECTORY_SEPARATOR, [$this->deploymentsPath, $this->deploymentDirectory]);
         Output::info("Set deployment path to {$this->deploymentPath}");
     }
 
+    /**
+     * Get full deployment path for this deployment
+     * @see getCurrentDeploymentPath() to get the path currently in use
+     * @return string
+     */
+    public function getDeploymentPath() {
+        return $this->deploymentsPath;
+    }
+
+    /**
+     * Attempt to rollback the deployment to the deployment path detected on run
+     * @throws ExecuteFailedException
+     */
     public function rollback(): void
     {
         Output::warn('Atomic deployment rollback has been requested');
@@ -209,6 +239,7 @@ class AtomicDeployments
     }
 
     /**
+     * Remove old build folders beyond of the allowed build count range set in config
      * @param $limit
      * @throws ExecuteFailedException
      * @throws InvalidPathException
