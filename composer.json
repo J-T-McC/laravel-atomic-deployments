@@ -14,12 +14,18 @@
         "php": "^7.4|^8.0"
     },
     "require-dev": {
-        "laravel/framework": "^8.12"
+        "laravel/framework": "^8.12",
+        "phpunit/phpunit": "^9.3.3",
+        "orchestra/testbench": "^6.9"
     },
     "autoload": {
         "psr-4": {
-            "JTMcC\\AtomicDeployments\\": "src"
+            "JTMcC\\AtomicDeployments\\": "src",
+            "Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     },
     "extra": {
         "laravel": {

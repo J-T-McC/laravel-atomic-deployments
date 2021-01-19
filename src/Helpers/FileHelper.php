@@ -8,18 +8,20 @@ use Illuminate\Support\Facades\File;
 
 class FileHelper
 {
-
     /**
      * @param string ...$paths
+     * @return bool
      * @throws InvalidPathException
      */
-    public static function confirmPathsExist(string ...$paths): void
+    public static function confirmPathsExist(string ...$paths): bool
     {
         foreach ($paths as $path) {
             if (!File::exists($path)) {
                 throw new InvalidPathException("{$path} does not exist");
             }
         }
+
+        return true;
     }
 
     /**
