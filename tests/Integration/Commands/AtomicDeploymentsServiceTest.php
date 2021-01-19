@@ -78,5 +78,46 @@ class AtomicDeploymentsServiceTest extends TestCase
     }
 
 
+    /**
+     * @test
+     */
+    public function it_allows_swapping_between_builds() {
+
+        //create two builds
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
+
+        $deployment1 = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append('isCurrentlyDeployed')->toArray();
+        $deployment2 = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append('isCurrentlyDeployed')->toArray();
+
+        //confirm our last build is currently deployed
+        $this->assertFalse($deployment1['isCurrentlyDeployed']);
+        $this->assertTrue($deployment2['isCurrentlyDeployed']);
+
+        Artisan::call('atomic-deployments:deploy --hash=test-dir-fake');
+
+        //confirm build must exist when attempting to swap
+        $this->seeInConsoleOutput([
+            'Updating symlink to previous build: test-dir-fake',
+            'Build not found for hash: test-dir-fake',
+        ]);
+
+        Artisan::call('atomic-deployments:deploy --hash=test-dir-1');
+
+        //swap build to our first deployment
+        $this->seeInConsoleOutput([
+            'Updating symlink to previous build: test-dir-1',
+            'Link created',
+        ]);
+
+        $deployment1 = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append('isCurrentlyDeployed')->toArray();
+        $deployment2 = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append('isCurrentlyDeployed')->toArray();
+
+        //confirm first deployment is now live and second is not
+        $this->assertTrue($deployment1['isCurrentlyDeployed']);
+        $this->assertFalse($deployment2['isCurrentlyDeployed']);
+    }
+
+
 }
 
