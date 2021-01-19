@@ -9,7 +9,7 @@ use Tests\TestCase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class AtomicDeploymentsServiceTest extends TestCase
+class DeployCommandTest extends TestCase
 {
 
     use RefreshDatabase;
@@ -81,7 +81,7 @@ class AtomicDeploymentsServiceTest extends TestCase
     /**
      * @test
      */
-    public function it_allows_swapping_between_builds() {
+    public function it_allows_swapping_between_deployments() {
 
         //create two builds
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
@@ -116,6 +116,33 @@ class AtomicDeploymentsServiceTest extends TestCase
         //confirm first deployment is now live and second is not
         $this->assertTrue($deployment1['isCurrentlyDeployed']);
         $this->assertFalse($deployment2['isCurrentlyDeployed']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_cleans_old_build_folders_based_on_build_limit() {
+
+        $this->app['config']->set('atomic-deployments.build-limit', 1);
+
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
+
+        $this->assertTrue(AtomicDeployment::all()->count() === 1);
+        $this->assertTrue(AtomicDeployment::withTrashed()->get()->count() === 2);
+
+        AtomicDeployment::truncate();
+
+        $this->app['config']->set('atomic-deployments.build-limit', 3);
+
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-3');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-4');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-5');
+
+        $this->assertTrue(AtomicDeployment::all()->count() === 3);
+        $this->assertTrue(AtomicDeployment::withTrashed()->get()->count() === 5);
     }
 
 

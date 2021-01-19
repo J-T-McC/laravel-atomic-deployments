@@ -24,5 +24,5 @@ return [
      * Max number of build directories allowed
      * Once limit is hit, old deployments will be removed automatically after a successful build
      */
-    'build-limit' => 2
+    'build-limit' => 10
 ];

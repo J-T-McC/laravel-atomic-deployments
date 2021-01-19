@@ -56,6 +56,9 @@ class AtomicDeployment extends Model
      */
     public function getIsCurrentlyDeployedAttribute()
     {
+        if(!$this->hasDeployment) {
+            return false;
+        }
         return Exec::readlink($this->deployment_link) === $this->deployment_path;
     }
 
