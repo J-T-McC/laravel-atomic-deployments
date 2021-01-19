@@ -17,6 +17,9 @@
         </include>
     </coverage>
     <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="DB_DATABASE" value="sqlite"/>
+
         <env name="ATM_DEPLOYMENT_LINK" value="deployment-link"/>
         <env name="ATM_BUILD" value="build"/>
         <env name="ATM_DEPLOYMENTS" value="deployments"/>

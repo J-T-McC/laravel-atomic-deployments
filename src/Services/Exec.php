@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace JTMcC\AtomicDeployments\Services;
 
@@ -8,10 +8,13 @@ use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 class Exec
 {
 
+
     /**
      * @param string $command
      * @param array $arguments
+     *
      * @return string
+     *
      * @throws ExecuteFailedException
      */
     private static function run(string $command, array $arguments = [])
@@ -35,9 +38,12 @@ class Exec
         return $result;
     }
 
+
     /**
      * @param $link
+     *
      * @return string
+     *
      * @throws ExecuteFailedException
      */
     public static function readlink($link)
@@ -45,10 +51,13 @@ class Exec
         return self::run('readlink -f %s', [$link]);
     }
 
+
     /**
      * @param string $link
      * @param string $path
+     *
      * @return string
+     *
      * @throws ExecuteFailedException
      */
     public static function ln(string $link, string $path)
@@ -56,18 +65,23 @@ class Exec
         return self::run('ln -sfn %s %s', [$path, $link]);
     }
 
+
     /**
      * @param string $from
      * @param string $to
+     *
      * @return string
+     *
      * @throws ExecuteFailedException
      */
     public static function rsyncDir(string $from, string $to) {
         return self::run('rsync -aW --no-compress %s %s', [$from, $to]);
     }
 
+
     /**
      * @return string
+     *
      * @throws ExecuteFailedException
      */
     public static function getGitHash() {

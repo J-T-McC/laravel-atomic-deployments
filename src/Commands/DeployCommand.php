@@ -13,10 +13,11 @@ class DeployCommand extends BaseCommand
 {
 
     protected $signature = 'atomic-deployments:deploy 
-    {--hash= : Specify a commit hash to deploy }
+    {--hash= : Specify a previous deployments commit hash/deploy-dir to deploy }
+    {--directory= : Define your deploy folder name. Defaults to current HEAD hash }
     {--dry-run : Test and log deployment steps }';
 
-    protected $description = 'Deploy build and link web root';
+    protected $description = 'Deploy a clone of your latest build and attach symlink';
 
     public function handle()
     {
@@ -33,9 +34,7 @@ class DeployCommand extends BaseCommand
             $this->option('dry-run')
         ));
 
-        $hash = $this->option('hash');
-
-        if ($hash) {
+        if ($hash = $this->option('hash')) {
             Output::info("Updating symlink to previous build: {$hash}");
 
             $deploymentModel = AtomicDeployment::successful()->where('commit_hash', $hash)->orderBy('id', 'desc')->first();
@@ -49,12 +48,19 @@ class DeployCommand extends BaseCommand
                         $deploymentModel->deployment_path
                     );
                 } catch (\Throwable $e) {
+                    Output::throwable($e);
                     $atomicDeployment->rollback();
                 }
             }
 
         } else {
             Output::info('Running Deployment...');
+
+            if($deployDir = trim($this->option('directory'))) {
+                Output::info("Deployment directory option set. Deployment will use {$deployDir}");
+                $atomicDeployment->setDeploymentDirectory($deployDir);
+            }
+
             $atomicDeployment->deploy(fn() => $atomicDeployment->cleanBuilds(config('atomic-deployments.build-limit')));
         }
 

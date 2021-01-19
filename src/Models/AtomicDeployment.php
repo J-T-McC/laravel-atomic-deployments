@@ -15,6 +15,7 @@ class AtomicDeployment extends Model
 {
     use HasFactory, SoftDeletes;
 
+
     protected $fillable = [
         'commit_hash',
         'deployment_status',
@@ -22,6 +23,7 @@ class AtomicDeployment extends Model
         'deployment_path',
         'deployment_link',
     ];
+
 
     protected static function boot()
     {
@@ -34,24 +36,29 @@ class AtomicDeployment extends Model
         });
     }
 
+
     public function scopeSuccessful($query)
     {
         return $query->where('deployment_status', DeploymentStatus::SUCCESS);
     }
+
 
     public function getHasDeploymentAttribute()
     {
         return File::isDirectory($this->deployment_path);
     }
 
+
     /**
      * @return bool
+     *
      * @throws \JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException
      */
     public function getIsCurrentlyDeployedAttribute()
     {
         return Exec::readlink($this->deployment_link) === $this->deployment_path;
     }
+
 
     public function deleteDeployment()
     {

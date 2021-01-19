@@ -1,15 +1,22 @@
 <?php
-
+declare(strict_types=1);
 
 namespace JTMcC\AtomicDeployments\Services;
 
 use Illuminate\Support\Facades\Log;
+
 use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
 
 class Output
 {
 
-    public static function throwable(\Throwable $obj)
+
+    /**
+     * Print throwable to console | log
+     *
+     * @param \Throwable $obj
+     */
+    public static function throwable(\Throwable $obj) : void
     {
         $title = get_class($obj);
         $file = $obj->getFile() . ' line ' . $obj->getLine();
@@ -26,32 +33,52 @@ class Output
         );
     }
 
-    public static function alert($message)
+
+    /**
+     * @param string $message
+     */
+    public static function alert(string $message) : void
     {
         ConsoleOutput::newLine();
         ConsoleOutput::alert($message);
         Log::info($message);
     }
 
-    public static function error($message)
+
+    /**
+     * @param string $message
+     */
+    public static function error(string $message) : void
     {
         ConsoleOutput::error($message);
         Log::error($message);
     }
 
-    public static function emergency($message)
+
+    /**
+     * @param string $message
+     */
+    public static function emergency(string $message) : void
     {
         ConsoleOutput::error($message);
         Log::emergency($message);
     }
 
-    public static function info($message)
+
+    /**
+     * @param $message
+     */
+    public static function info(string $message) : void
     {
         ConsoleOutput::info($message);
         Log::info($message);
     }
 
-    public static function warn($message)
+
+    /**
+     * @param $message
+     */
+    public static function warn(string $message) : void
     {
         ConsoleOutput::warn($message);
         Log::warning($message);

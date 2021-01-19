@@ -6,8 +6,15 @@ use ReflectionClass;
 
 class Enum
 {
-    private static $constCacheArray = null;
 
+    private static ?array $constCacheArray = null;
+
+
+    /**
+     * @return array|mixed
+     *
+     * @throws \ReflectionException
+     */
     public static function getConstants() {
         if (self::$constCacheArray == null) {
             self::$constCacheArray = [];
@@ -20,6 +27,14 @@ class Enum
         return self::$constCacheArray[$calledClass];
     }
 
+
+    /**
+     * @param int $value
+     *
+     * @return false|int|string|null
+     *
+     * @throws \ReflectionException
+     */
     public static function getNameFromValue(int $value) {
         return array_search($value, self::getConstants(), true) ?? null;
     }

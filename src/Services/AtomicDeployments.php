@@ -24,9 +24,18 @@ class AtomicDeployments
     protected string $deploymentLink;
     protected string $deploymentPath;
     protected string $deploymentsPath;
-    protected string $deploymentDirectory;
     protected string $initialDeploymentPath = '';
+    protected string $deploymentDirectory = '';
 
+
+    /**
+     * @param string $deploymentLink
+     * @param string $deploymentsPath
+     * @param string $buildPath
+     * @param bool $dryRun
+     *
+     * @throws ExecuteFailedException
+     */
     public function __construct(string $deploymentLink, string $deploymentsPath, string $buildPath, bool $dryRun = false)
     {
         $this->deploymentLink = $deploymentLink;
@@ -39,8 +48,10 @@ class AtomicDeployments
         $this->initialDeploymentPath = $this->getCurrentDeploymentPath();
     }
 
+
     /**
      * Run full deployment
+     *
      * @param Closure|null $success
      * @param Closure|null $failed
      */
@@ -58,16 +69,14 @@ class AtomicDeployments
                 "Previous deployment detected at {$this->initialDeploymentPath}" :
                 "No previous deployment detected for this link");
 
-            $this->setDeploymentDirectory(Exec::getGitHash());
+            if (empty(trim($this->deploymentDirectory))) {
+                $this->setDeploymentDirectory(Exec::getGitHash());
+            }
+
             $this->setDeploymentPath();
             $this->updateDeploymentStatus(DeploymentStatus::RUNNING);
             $this->createDeploymentDirectory();
-
-            FileHelper::confirmPathsExist(
-                $this->buildPath,
-                $this->deploymentPath
-            );
-
+            $this->confirmRequiredDirectoriesExist();
             $this->copyDeploymentContents();
             $this->linkDeployment($this->deploymentLink, $this->deploymentPath);
             $this->confirmSymbolicLink($this->deploymentPath);
@@ -84,12 +93,18 @@ class AtomicDeployments
                 $failed($this);
             }
         }
-
     }
 
+
+    /**
+     * Create | Update deployment status database record for current deployment
+     *
+     * @param int $status
+     */
     public function updateDeploymentStatus(int $status)
     {
         if ($this->dryRun) {
+            Output::warn('Dry run - Skipping deployment status update');
             return;
         }
 
@@ -107,60 +122,108 @@ class AtomicDeployments
 
     /**
      * Test a path against our symbolic links destination
+     *
      * @param string $link
+     *
      * @return bool
+     *
      * @throws ExecuteFailedException
      */
     public function confirmSymbolicLink(string $link)
     {
         Output::info('Confirming deployment link is correct');
         $currentDeploymentPath = $this->getCurrentDeploymentPath();
+
+        if ($this->dryRun) {
+            Output::warn('Dry run - Skipping link comparison');
+            return true;
+        }
+
         if ($link !== $currentDeploymentPath) {
             throw new ExecuteFailedException('Expected deployment link to direct to ' . $this->deploymentPath . ' but found ' . $currentDeploymentPath);
         }
+
         Output::info('Build link confirmed');
         return true;
     }
 
+
+    /**
+     * @throws InvalidPathException
+     */
+    private function confirmRequiredDirectoriesExist()
+    {
+        if ($this->dryRun) {
+            Output::warn('Dry run - Skipping required directory exists check for:');
+            Output::warn($this->buildPath);
+            Output::warn($this->deploymentPath);
+            return;
+        }
+
+        FileHelper::confirmPathsExist(
+            $this->buildPath,
+            $this->deploymentPath
+        );
+    }
+
+
     private function createDeploymentDirectory(): void
     {
-        if (!$this->dryRun) {
-            FileHelper::createDirectory($this->deploymentPath);
+        Output::info("Creating directory at {$this->deploymentPath}");
+
+        if ($this->dryRun) {
+            Output::warn('Dry run - Skipping creating deployment directory');
+            return;
         }
+
+        FileHelper::createDirectory($this->deploymentPath);
         Output::info('Created deployment directory');
     }
 
+
     /**
      * Clone our build into our deployment folder
+     *
      * @throws ExecuteFailedException
      */
     private function copyDeploymentContents(): void
     {
         Output::info('Copying build files to deployment folder...');
-        if (!$this->dryRun) {
-            Exec::rsyncDir("{$this->buildPath}/", "{$this->deploymentPath}/");
-            Output::info('Copying complete');
+
+        if ($this->dryRun) {
+            Output::warn('Dry run - Skipping directory sync');
+            return;
         }
+
+        Exec::rsyncDir("{$this->buildPath}/", "{$this->deploymentPath}/");
+        Output::info('Copying complete');
     }
+
 
     /**
      * Create Symbolic link for live deployment
      * Will overwrite previous link
+     *
      * @param string $deploymentLink
      * @param string $deploymentPath
+     *
      * @throws ExecuteFailedException
      */
     public function linkDeployment(string $deploymentLink, string $deploymentPath): void
     {
         Output::info("Creating web root symbolic link: {$deploymentLink} -> {$deploymentPath}");
-        if (!$this->dryRun) {
-            Exec::ln($deploymentLink, $deploymentPath);
-            Output::info("Link created");
+        if ($this->dryRun) {
+            Output::warn("Dry run - Skipping symbolic link deployment");
+            return;
         }
+        Exec::ln($deploymentLink, $deploymentPath);
+        Output::info("Link created");
     }
+
 
     /**
      * Sets the directory name for this deployment
+     *
      * @param string $name
      */
     public function setDeploymentDirectory(string $name): void
@@ -169,15 +232,23 @@ class AtomicDeployments
         Output::info("Set deployment directory to {$this->deploymentDirectory}");
     }
 
+
     /**
      * Get the current symlinked deployment path
+     *
      * @return string
+     *
      * @throws ExecuteFailedException
      */
     public function getCurrentDeploymentPath()
     {
-        return Exec::readlink($this->deploymentLink);
+        $result = Exec::readlink($this->deploymentLink);
+        if($result === $this->deploymentLink) {
+            return '';
+        }
+        return $result;
     }
+
 
     /**
      * Sets full deployment path for this deployment
@@ -188,17 +259,23 @@ class AtomicDeployments
         Output::info("Set deployment path to {$this->deploymentPath}");
     }
 
+
     /**
      * Get full deployment path for this deployment
-     * @see getCurrentDeploymentPath() to get the path currently in use
+     *
      * @return string
+     *
+     * @see getCurrentDeploymentPath() to get the path currently in use
      */
-    public function getDeploymentPath() {
+    public function getDeploymentPath()
+    {
         return $this->deploymentsPath;
     }
 
+
     /**
      * Attempt to rollback the deployment to the deployment path detected on run
+     *
      * @throws ExecuteFailedException
      */
     public function rollback(): void
@@ -238,9 +315,12 @@ class AtomicDeployments
         Output::info('Rollback not required');
     }
 
+
     /**
      * Remove old build folders beyond of the allowed build count range set in config
+     *
      * @param $limit
+     *
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
@@ -276,14 +356,15 @@ class AtomicDeployments
 
             Output::info("Deployment deleted");
         }
-
     }
+
 
     public function failed()
     {
         $this->rollback();
         $this->updateDeploymentStatus(DeploymentStatus::FAILED);
     }
+
 
     public function shutdown()
     {

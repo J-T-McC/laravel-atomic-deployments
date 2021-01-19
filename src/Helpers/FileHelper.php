@@ -10,7 +10,9 @@ class FileHelper
 {
     /**
      * @param string ...$paths
+     *
      * @return bool
+     *
      * @throws InvalidPathException
      */
     public static function confirmPathsExist(string ...$paths): bool
