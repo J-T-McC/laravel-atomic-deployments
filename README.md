@@ -12,7 +12,7 @@ The purpose of this package is to introduce local zero-downtime deployments into
 
 ```shell script
 
- // ...
+composer require jtmcc/atomic-deployments
 
 php artisan migrate
 
