@@ -2,6 +2,9 @@
 
 namespace Tests\Integration\Commands;
 
+use Illuminate\Support\Facades\Event;
+use JTMcC\AtomicDeployments\Events\DeploymentFailed;
+use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 use Tests\TestCase;
@@ -144,6 +147,47 @@ class DeployCommandTest extends TestCase
         $this->assertTrue(AtomicDeployment::all()->count() === 3);
         $this->assertTrue(AtomicDeployment::withTrashed()->get()->count() === 5);
     }
+
+
+    /**
+     * @test
+     */
+    public function it_dispatches_deployment_successful_event_on_build() {
+        $this->expectsEvents(DeploymentSuccessful::class);
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+    }
+
+    /**
+     * @test
+     */
+    public function it_dispatches_deployment_successful_event_deployment_swap() {
+
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
+
+        $deployment = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append('isCurrentlyDeployed')->toArray();
+        $this->assertTrue($deployment['isCurrentlyDeployed']);
+
+        $this->expectsEvents(DeploymentSuccessful::class);
+
+        Artisan::call('atomic-deployments:deploy --hash=test-dir-1');
+        $deployment = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append('isCurrentlyDeployed')->toArray();
+        $this->assertTrue($deployment['isCurrentlyDeployed']);
+
+    }
+
+
+    /**
+     * @test
+     */
+    public function it_dispatches_deployment_failed_event_on_build_fail() {
+        //force invalid path exception
+        $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
+        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath . '/deployments');
+        $this->expectsEvents(DeploymentFailed::class);
+        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+    }
+
 
 
 }

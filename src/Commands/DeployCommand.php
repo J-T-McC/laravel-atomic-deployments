@@ -2,6 +2,8 @@
 
 namespace JTMcC\AtomicDeployments\Commands;
 
+use Illuminate\Support\Facades\Artisan;
+use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Services\AtomicDeployments;
 
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
@@ -47,6 +49,8 @@ class DeployCommand extends BaseCommand
                         $deploymentModel->deployment_link,
                         $deploymentModel->deployment_path
                     );
+                    $atomicDeployment->confirmSymbolicLink($deploymentModel->deployment_path);
+                    DeploymentSuccessful::dispatch($atomicDeployment, $deploymentModel);
                 } catch (\Throwable $e) {
                     Output::throwable($e);
                     $atomicDeployment->rollback();
@@ -66,6 +70,7 @@ class DeployCommand extends BaseCommand
 
         Output::info("Finished");
         ConsoleOutput::newLine();
+
     }
 
 

@@ -5,6 +5,8 @@ namespace JTMcC\AtomicDeployments\Services;
 
 use Closure;
 
+use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
+use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Helpers\FileHelper;
@@ -59,7 +61,7 @@ class AtomicDeployments
     {
         try {
 
-            if ($this->dryRun) {
+            if ($this->isDryRun()) {
                 Output::warn('Dry run - changes will not be made');
             }
 
@@ -83,6 +85,7 @@ class AtomicDeployments
             $this->updateDeploymentStatus(DeploymentStatus::SUCCESS);
 
             if ($success) {
+                DeploymentSuccessful::dispatch($this, $this->model);
                 $success($this);
             }
 
@@ -103,12 +106,12 @@ class AtomicDeployments
      */
     public function updateDeploymentStatus(int $status)
     {
-        if ($this->dryRun) {
+        if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping deployment status update');
             return;
         }
 
-        AtomicDeployment::updateOrCreate(
+        $this->model = AtomicDeployment::updateOrCreate(
             ['deployment_path' => $this->deploymentPath],
             [
                 'commit_hash' => $this->deploymentDirectory,
@@ -123,24 +126,24 @@ class AtomicDeployments
     /**
      * Test a path against our symbolic links destination
      *
-     * @param string $link
+     * @param string $deploymentPath
      *
      * @return bool
      *
      * @throws ExecuteFailedException
      */
-    public function confirmSymbolicLink(string $link)
+    public function confirmSymbolicLink(string $deploymentPath)
     {
         Output::info('Confirming deployment link is correct');
         $currentDeploymentPath = $this->getCurrentDeploymentPath();
 
-        if ($this->dryRun) {
+        if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping link comparison');
             return true;
         }
 
-        if ($link !== $currentDeploymentPath) {
-            throw new ExecuteFailedException('Expected deployment link to direct to ' . $this->deploymentPath . ' but found ' . $currentDeploymentPath);
+        if ($deploymentPath !== $currentDeploymentPath) {
+            throw new ExecuteFailedException('Expected deployment link to direct to ' . $deploymentPath . ' but found ' . $currentDeploymentPath);
         }
 
         Output::info('Build link confirmed');
@@ -151,9 +154,9 @@ class AtomicDeployments
     /**
      * @throws InvalidPathException
      */
-    private function confirmRequiredDirectoriesExist()
+    public function confirmRequiredDirectoriesExist()
     {
-        if ($this->dryRun) {
+        if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping required directory exists check for:');
             Output::warn($this->buildPath);
             Output::warn($this->deploymentPath);
@@ -177,7 +180,7 @@ class AtomicDeployments
             throw new InvalidPathException('Deployments folder cannot be subdirectory of build folder');
         }
 
-        if ($this->dryRun) {
+        if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping creating deployment directory');
             return;
         }
@@ -192,11 +195,11 @@ class AtomicDeployments
      *
      * @throws ExecuteFailedException
      */
-    private function copyDeploymentContents(): void
+    public function copyDeploymentContents(): void
     {
         Output::info('Copying build files to deployment folder...');
 
-        if ($this->dryRun) {
+        if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping directory sync');
             return;
         }
@@ -218,7 +221,7 @@ class AtomicDeployments
     public function linkDeployment(string $deploymentLink, string $deploymentPath): void
     {
         Output::info("Creating web root symbolic link: {$deploymentLink} -> {$deploymentPath}");
-        if ($this->dryRun) {
+        if ($this->isDryRun()) {
             Output::warn("Dry run - Skipping symbolic link deployment");
             return;
         }
@@ -288,7 +291,7 @@ class AtomicDeployments
     {
         Output::warn('Atomic deployment rollback has been requested');
 
-        if (!$this->dryRun) {
+        if (!$this->isDryRun()) {
 
             $currentPath = $this->getCurrentDeploymentPath();
 
@@ -356,7 +359,7 @@ class AtomicDeployments
 
             Output::info("Deleting {$deployment->commit_hash}");
 
-            if (!$this->dryRun) {
+            if (!$this->isDryRun()) {
                 $deployment->delete();
             }
 
@@ -365,13 +368,22 @@ class AtomicDeployments
     }
 
 
+    public function isDryRun() {
+        return $this->dryRun;
+    }
+    
+
+    /**
+     * @throws ExecuteFailedException
+     */
     public function failed()
     {
         $this->rollback();
         $this->updateDeploymentStatus(DeploymentStatus::FAILED);
+        DeploymentFailed::dispatch($this, $this->model);
     }
 
-
+    
     public function shutdown()
     {
         if ($error = error_get_last()) {

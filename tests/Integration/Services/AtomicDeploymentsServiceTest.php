@@ -126,6 +126,5 @@ class AtomicDeploymentsServiceTest extends TestCase
         $atomicDeployment->createDeploymentDirectory();
     }
 
-
 }
 

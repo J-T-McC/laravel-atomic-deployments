@@ -7,6 +7,7 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 use Illuminate\Filesystem\Filesystem;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Event;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -45,6 +46,8 @@ abstract class TestCase extends BaseTestCase
 
         $this->fileSystem->ensureDirectoryExists($this->buildPath . '/build-contents-folder');
         $this->fileSystem->ensureDirectoryExists($this->deploymentsPath);
+
+        Event::fake();
     }
 
 
