@@ -13,14 +13,14 @@ class DeploymentSuccessful implements ShouldQueue
     use Dispatchable, SerializesModels;
 
     public AtomicDeployments $deploymentService;
-    public AtomicDeployment $deployment;
+    public ?AtomicDeployment $deployment = null;
 
     /**
      * DeploymentSuccessful constructor.
      * @param AtomicDeployments $deploymentService
-     * @param AtomicDeployment $deployment
+     * @param mixed $deployment
      */
-    public function __construct(AtomicDeployments $deploymentService, AtomicDeployment $deployment)
+    public function __construct(AtomicDeployments $deploymentService, ?AtomicDeployment $deployment = null)
     {
         $this->deploymentService = $deploymentService;
         $this->deployment = $deployment;
