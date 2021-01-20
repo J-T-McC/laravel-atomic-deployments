@@ -16,6 +16,8 @@ composer require jtmcc/atomic-deployments
 
 php artisan migrate
 
+php artisan vendor:publish --tag=config
+
 ```
 
 ## Configuration 
