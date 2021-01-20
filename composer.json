@@ -1,6 +1,6 @@
 {
     "name": "jtmcc/atomic-deployments",
-    "description": "Copy and link web path to latest build",
+    "description": "Local zero downtime deployments for Laravel applications",
     "license": "MIT",
     "authors": [
         {
