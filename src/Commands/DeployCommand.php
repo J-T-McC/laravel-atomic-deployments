@@ -2,7 +2,6 @@
 
 namespace JTMcC\AtomicDeployments\Commands;
 
-use Illuminate\Support\Facades\Artisan;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Services\AtomicDeployments;
 

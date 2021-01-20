@@ -17,6 +17,7 @@ return [
     /**
      * Production build directory
      * Builds are copied here and linked for deployment
+     * Ensure this directory has the required permissions to allow php and your webserver to run your application here
      */
     'deployments-path' => env('ATM_DEPLOYMENTS'),
 
