@@ -1,4 +1,5 @@
 # Atomic Deployment Package for Laravel Framework
+![run-tests](https://github.com/J-T-McC/laravel-atomic-deployments/workflows/run-tests/badge.svg)
 
 The purpose of this package is to introduce local zero-downtime deployments into a laravel application.
 
