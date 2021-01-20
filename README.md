@@ -103,7 +103,7 @@ php artisan atomic-deployments:deploy
 
 Deploy current under using a custom directory name 
 ```shell script
-php artisan atomic-deployments:deploy --directory=deployemnt_folder
+php artisan atomic-deployments:deploy --directory=deployment_folder
 ```
 
 Revert linked project back to a previous build 
