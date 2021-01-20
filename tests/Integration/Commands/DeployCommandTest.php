@@ -2,7 +2,6 @@
 
 namespace Tests\Integration\Commands;
 
-use Illuminate\Support\Facades\Event;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
