@@ -68,7 +68,7 @@ class DeployCommand extends BaseCommand
         }
 
         Output::info("Finished");
-        ConsoleOutput::newLine();
+        ConsoleOutput::line('');
 
     }
 

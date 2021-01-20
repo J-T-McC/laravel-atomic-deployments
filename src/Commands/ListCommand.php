@@ -15,7 +15,7 @@ class ListCommand extends BaseCommand
 
     public function handle()
     {
-        ConsoleOutput::newLine();
+        ConsoleOutput::line('');
         ConsoleOutput::alert('Available Deployments');
 
         $deployments = AtomicDeployment::select(
@@ -38,7 +38,7 @@ class ListCommand extends BaseCommand
         $titles = ['ID', 'Commit Hash', 'Path', 'SymLink', 'Status', 'Created', 'Live'];
 
         ConsoleOutput::table($titles, $deployments);
-        ConsoleOutput::newLine();
+        ConsoleOutput::line('');
     }
 
 }

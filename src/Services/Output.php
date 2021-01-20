@@ -38,7 +38,7 @@ class Output
      */
     public static function alert(string $message) : void
     {
-        ConsoleOutput::newLine();
+        ConsoleOutput::line('');
         ConsoleOutput::alert($message);
         Log::info($message);
     }
