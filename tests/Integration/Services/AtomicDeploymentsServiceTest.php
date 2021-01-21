@@ -24,6 +24,7 @@ class AtomicDeploymentsServiceTest extends TestCase
             $this->deploymentLink,
             $this->deploymentsPath,
             $this->buildPath,
+            [],
             $dryRun
         );
     }
@@ -119,6 +120,7 @@ class AtomicDeploymentsServiceTest extends TestCase
             $this->deploymentLink,
             $this->buildPath . '/deployments',
             $this->buildPath,
+            [],
             true
         );
         $atomicDeployment->setDeploymentDirectory($hash);

@@ -9,7 +9,6 @@ use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
 class Output
 {
 
-
     /**
      * Print throwable to console | log
      *
@@ -81,6 +80,12 @@ class Output
     {
         ConsoleOutput::warn($message);
         Log::warning($message);
+    }
+
+
+    public static function line() : void
+    {
+        ConsoleOutput::line('');
     }
 
 }

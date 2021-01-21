@@ -37,13 +37,15 @@ abstract class TestCase extends BaseTestCase
         $config = $this->app->config->get('atomic-deployments');
 
         $this->buildPath = static::tmpFolder . $config['build-path'];
-        $this->deploymentLink = static::tmpFolder. $config['deployment-link'];
-        $this->deploymentsPath = static::tmpFolder. $config['deployments-path'];
+        $this->deploymentLink = static::tmpFolder . $config['deployment-link'];
+        $this->deploymentsPath = static::tmpFolder . $config['deployments-path'];
 
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployment-link', $this->deploymentLink);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->deploymentsPath);
-
+        $this->app['config']->set('atomic-deployments.migrate', [
+            'migration/*'
+        ]);
         $this->fileSystem->ensureDirectoryExists($this->buildPath . '/build-contents-folder');
         $this->fileSystem->ensureDirectoryExists($this->deploymentsPath);
 
@@ -60,7 +62,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Define environment setup.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param \Illuminate\Foundation\Application $app
      * @return void
      */
     protected function getEnvironmentSetUp($app)
@@ -68,9 +70,9 @@ abstract class TestCase extends BaseTestCase
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
 
     }
@@ -85,14 +87,14 @@ abstract class TestCase extends BaseTestCase
      */
     protected function seeInConsoleOutput($searchStrings)
     {
-        if (! is_array($searchStrings)) {
+        if (!is_array($searchStrings)) {
             $searchStrings = [$searchStrings];
         }
 
         $output = Artisan::output();
 
         foreach ($searchStrings as $searchString) {
-            $this->assertStringContainsStringIgnoringCase((string) $searchString, $output);
+            $this->assertStringContainsStringIgnoringCase((string)$searchString, $output);
         }
     }
 
@@ -101,14 +103,14 @@ abstract class TestCase extends BaseTestCase
      */
     protected function dontSeeInConsoleOutput($searchStrings)
     {
-        if (! is_array($searchStrings)) {
+        if (!is_array($searchStrings)) {
             $searchStrings = [$searchStrings];
         }
 
         $output = Artisan::output();
 
         foreach ($searchStrings as $searchString) {
-            $this->assertStringNotContainsString((string) $searchString, $output);
+            $this->assertStringNotContainsString((string)$searchString, $output);
         }
     }
 }

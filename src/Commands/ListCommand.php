@@ -25,7 +25,8 @@ class ListCommand extends BaseCommand
             'deployment_link',
             'deployment_status',
             'created_at',
-        )->get()->append('isCurrentlyDeployed')->map(function($deployment) {
+        )->get()->map(function($deployment) {
+            $deployment->append('isCurrentlyDeployed');
             $deployment->deployment_status = DeploymentStatus::getNameFromValue($deployment->deployment_status);
             return $deployment;
         });

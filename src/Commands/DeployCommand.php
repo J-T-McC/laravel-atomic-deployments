@@ -27,11 +27,13 @@ class DeployCommand extends BaseCommand
         $buildPath = config('atomic-deployments.build-path');
         $deploymentLink = config('atomic-deployments.deployment-link');
         $deploymentsPath = config('atomic-deployments.deployments-path');
+        $migrate = config('atomic-deployments.migrate', []);
 
         $atomicDeployment = (new AtomicDeployments(
             $deploymentLink,
             $deploymentsPath,
             $buildPath,
+            $migrate,
             $this->option('dry-run')
         ));
 
