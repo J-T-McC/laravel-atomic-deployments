@@ -1,5 +1,5 @@
 # Atomic Deployment Package for Laravel Framework
-![run-tests](https://github.com/J-T-McC/laravel-atomic-deployments/workflows/run-tests/badge.svg)
+![run-tests](https://github.com/J-T-McC/laravel-atomic-deployments/workflows/run-tests/badge.svg) [![StyleCI](https://github.styleci.io/repos/330310979/shield?branch=main)](https://github.styleci.io/repos/330310979?branch=main)
 
 The purpose of this package is to introduce local zero-downtime deployments into a laravel application.
 
