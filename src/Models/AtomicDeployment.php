@@ -2,7 +2,6 @@
 
 namespace JTMcC\AtomicDeployments\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use JTMcC\AtomicDeployments\Exceptions\AreYouInsaneException;
@@ -13,7 +12,7 @@ use JTMcC\AtomicDeployments\Services\Exec;
 
 class AtomicDeployment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
 
     protected $fillable = [

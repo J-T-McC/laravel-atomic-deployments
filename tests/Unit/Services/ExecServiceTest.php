@@ -26,7 +26,7 @@ class ExecServiceTest extends TestCase
         $to = $this->deploymentsPath;
         $confirm = $this->deploymentsPath . '/to-move';
         $this->fileSystem->makeDirectory($from);
-        Exec::rsyncDir($from, $to);
+        Exec::rsync($from, $to);
         $this->assertTrue($this->fileSystem->isDirectory($confirm));
     }
 

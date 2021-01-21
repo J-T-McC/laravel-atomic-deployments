@@ -5,7 +5,7 @@ The purpose of this package is to introduce local zero-downtime deployments into
 
 ## Requirements
  
-* Laravel 8
+* Laravel 7 | 8
 * PHP ^7.4 | ^8.0
 
 ## Installation
@@ -64,12 +64,25 @@ return [
      * Max number of build directories allowed
      * Once limit is hit, old deployments will be removed automatically after a successful build
      */
-    'build-limit' => 10
+    'build-limit' => 10,
+
+    /**
+     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern
+     * @see https://www.php.net/manual/en/function.glob.php
+     */
+    'migrate' => [
+//        'storage/framework/sessions/*',
+    ]
+
 ];
 ```
 
 By default, this package will restrict your project to 10 deployment builds. Once you hit the limit defined in the config, 
 older deployments will be automatically deleted. Be aware of the size of your project and adjust to meet your needs.
+
+You might find yourself in a situation where you need to migrate files that don't exist in your build project from your 
+current deployment folder to your new deployment folder. These files/folders can be specified in the migrate config array, 
+and they will be copied from the outgoing deployment into the new deployment when you run the deploy command.
 
 Once you have configured your env and have deployed a build, you can update your webserver to start routing traffic 
 to your 'deployment-link' location.
@@ -104,7 +117,7 @@ Deploy current build using the current branch git hash for deployment folder
 php artisan atomic-deployments:deploy
 ```
 
-Deploy current under using a custom directory name 
+Deploy current build using a custom directory name 
 ```shell script
 php artisan atomic-deployments:deploy --directory=deployment_folder
 ```

@@ -73,8 +73,24 @@ class Exec
      *
      * @throws ExecuteFailedException
      */
-    public static function rsyncDir(string $from, string $to) {
+    public static function rsync(string $from, string $to) {
         return self::run('rsync -aW --no-compress %s %s', [$from, $to]);
+    }
+
+
+    /**
+     * @param string $from
+     * @param string $to
+     * @param string $pattern
+     *
+     * @return string
+     *
+     * @throws ExecuteFailedException
+     */
+    public static function rsyncPattern(string $from, string $to, string $pattern) {
+        $from = rtrim($from, DIRECTORY_SEPARATOR ) . '/';
+        $to = rtrim($to, DIRECTORY_SEPARATOR) . '/';
+        return self::run('rsync -aW --no-compress --include="'.$pattern.'" --exclude="*" %s %s', [$from, $to]);
     }
 
 
