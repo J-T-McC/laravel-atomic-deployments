@@ -26,11 +26,11 @@ class AtomicDeploymentsServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/atomic-deployments.php' => config_path('atomic-deployments.php'),
-        ], 'config');
+        ], 'atm-config');
 
         $this->publishes([
             __DIR__.'/../database/migrations/' =>database_path('migrations'),
-        ], 'migrations');
+        ], 'atm-migrations');
     }
 
     protected function registerCommands(): void

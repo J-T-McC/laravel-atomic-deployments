@@ -94,8 +94,9 @@ class AtomicDeployments
             $this->confirmSymbolicLink($this->deploymentPath);
             $this->updateDeploymentStatus(DeploymentStatus::SUCCESS);
 
+            DeploymentSuccessful::dispatch($this, $this->model);
+
             if ($success) {
-                DeploymentSuccessful::dispatch($this, $this->model);
                 $success($this);
             }
 

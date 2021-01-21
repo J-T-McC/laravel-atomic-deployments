@@ -16,7 +16,7 @@ composer require jtmcc/atomic-deployments
 
 php artisan migrate
 
-php artisan vendor:publish --tag=config
+php artisan vendor:publish --tag=atm-config
 
 ```
 
@@ -141,6 +141,53 @@ php artisan atomic-deployments:list
 
 - DeploymentSuccessful
 - DeploymentFailed
+
+## Laravel Forge Example
+
+Here is a basic configuration for use with Forge
+
+#### *Deploy Script*
+
+```shell script
+cd /home/forge/your-application.com
+git pull origin main
+$FORGE_COMPOSER install --no-interaction --prefer-dist --optimize-autoloader
+
+( flock -w 10 9 || exit 1
+    echo 'Restarting FPM...'; sudo -S service $FORGE_PHP_FPM reload ) 9>/tmp/fpmlock
+
+if [ -f artisan ]; then
+    $FORGE_PHP artisan migrate --force
+    $FORGE_PHP artisan optimize:clear
+    $FORGE_PHP artisan atomic-deployments:deploy
+fi
+```
+
+#### *.env*
+
+Build project .env
+
+```dotenv
+ATM_DEPLOYMENT_LINK="/home/forge/your-application.com-link"
+ATM_BUILD="/home/forge/your-application.com"
+ATM_DEPLOYMENTS="/home/forge/deployments/your-application.com"
+```
+
+#### *nginx config*
+
+```shell script
+root /home/forge/your-application.com-link/public;
+```
+
+#### *schedule command*
+
+```shell script
+php8.0 /home/forge/your-application.com-link/artisan schedule:run
+```
+
+If your application is isolated, you must ensure that your deployments folder has the appropriate permissions to serve
+your application for that user.
+
 
 ## License
 
