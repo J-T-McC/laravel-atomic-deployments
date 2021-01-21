@@ -3,17 +3,15 @@
 namespace JTMcC\AtomicDeployments\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
 use JTMcC\AtomicDeployments\Exceptions\AreYouInsaneException;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
-
-use Illuminate\Database\Eloquent\SoftDeletes;
 use JTMcC\AtomicDeployments\Services\Exec;
 
 class AtomicDeployment extends Model
 {
     use SoftDeletes;
-
 
     protected $fillable = [
         'commit_hash',
@@ -22,7 +20,6 @@ class AtomicDeployment extends Model
         'deployment_path',
         'deployment_link',
     ];
-
 
     protected static function boot()
     {
@@ -35,32 +32,29 @@ class AtomicDeployment extends Model
         });
     }
 
-
     public function scopeSuccessful($query)
     {
         return $query->where('deployment_status', DeploymentStatus::SUCCESS);
     }
-
 
     public function getHasDeploymentAttribute()
     {
         return File::isDirectory($this->deployment_path);
     }
 
-
     /**
-     * @return bool
-     *
      * @throws \JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException
+     *
+     * @return bool
      */
     public function getIsCurrentlyDeployedAttribute()
     {
-        if(!$this->hasDeployment) {
+        if (!$this->hasDeployment) {
             return false;
         }
+
         return Exec::readlink($this->deployment_link) === $this->deployment_path;
     }
-
 
     public function deleteDeployment()
     {
@@ -70,6 +64,4 @@ class AtomicDeployment extends Model
 
         return $this;
     }
-
-
 }

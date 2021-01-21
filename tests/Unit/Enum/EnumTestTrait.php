@@ -4,7 +4,6 @@ namespace Tests\Unit\Enum;
 
 trait EnumTestTrait
 {
-
     /**
      * @test
      */
@@ -27,5 +26,4 @@ trait EnumTestTrait
         $value = array_values($props)[0];
         $this->assertTrue($enum->getNameFromValue($value) === $category);
     }
-
 }

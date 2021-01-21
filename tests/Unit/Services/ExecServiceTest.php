@@ -7,7 +7,6 @@ use Tests\TestCase;
 
 class ExecServiceTest extends TestCase
 {
-
     /**
      * @test
      */
@@ -22,13 +21,11 @@ class ExecServiceTest extends TestCase
      */
     public function it_can_remote_sync_folders()
     {
-        $from = $this->buildPath . '/to-move';
+        $from = $this->buildPath.'/to-move';
         $to = $this->deploymentsPath;
-        $confirm = $this->deploymentsPath . '/to-move';
+        $confirm = $this->deploymentsPath.'/to-move';
         $this->fileSystem->makeDirectory($from);
         Exec::rsync($from, $to);
         $this->assertTrue($this->fileSystem->isDirectory($confirm));
     }
-
 }
-
