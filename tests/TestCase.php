@@ -2,17 +2,14 @@
 
 namespace Tests;
 
-use Orchestra\Testbench\TestCase as BaseTestCase;
-
 use Illuminate\Filesystem\Filesystem;
-
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
+use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-
-    const tmpFolder = __DIR__ . '/tmp/';
+    const tmpFolder = __DIR__.'/tmp/';
     public $buildPath;
     public $deploymentLink;
     public $deploymentsPath;
@@ -36,22 +33,21 @@ abstract class TestCase extends BaseTestCase
 
         $config = $this->app->config->get('atomic-deployments');
 
-        $this->buildPath = static::tmpFolder . $config['build-path'];
-        $this->deploymentLink = static::tmpFolder . $config['deployment-link'];
-        $this->deploymentsPath = static::tmpFolder . $config['deployments-path'];
+        $this->buildPath = static::tmpFolder.$config['build-path'];
+        $this->deploymentLink = static::tmpFolder.$config['deployment-link'];
+        $this->deploymentsPath = static::tmpFolder.$config['deployments-path'];
 
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployment-link', $this->deploymentLink);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->deploymentsPath);
         $this->app['config']->set('atomic-deployments.migrate', [
-            'migration/*'
+            'migration/*',
         ]);
-        $this->fileSystem->ensureDirectoryExists($this->buildPath . '/build-contents-folder');
+        $this->fileSystem->ensureDirectoryExists($this->buildPath.'/build-contents-folder');
         $this->fileSystem->ensureDirectoryExists($this->deploymentsPath);
 
         Event::fake();
     }
-
 
     public function tearDown(): void
     {
@@ -63,6 +59,7 @@ abstract class TestCase extends BaseTestCase
      * Define environment setup.
      *
      * @param \Illuminate\Foundation\Application $app
+     *
      * @return void
      */
     protected function getEnvironmentSetUp($app)
@@ -70,11 +67,10 @@ abstract class TestCase extends BaseTestCase
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
-            'driver' => 'sqlite',
+            'driver'   => 'sqlite',
             'database' => ':memory:',
-            'prefix' => '',
+            'prefix'   => '',
         ]);
-
     }
 
     protected function getPackageProviders($app)
@@ -94,7 +90,7 @@ abstract class TestCase extends BaseTestCase
         $output = Artisan::output();
 
         foreach ($searchStrings as $searchString) {
-            $this->assertStringContainsStringIgnoringCase((string)$searchString, $output);
+            $this->assertStringContainsStringIgnoringCase((string) $searchString, $output);
         }
     }
 
@@ -110,7 +106,7 @@ abstract class TestCase extends BaseTestCase
         $output = Artisan::output();
 
         foreach ($searchStrings as $searchString) {
-            $this->assertStringNotContainsString((string)$searchString, $output);
+            $this->assertStringNotContainsString((string) $searchString, $output);
         }
     }
 }

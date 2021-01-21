@@ -6,20 +6,17 @@ use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 
 class Exec
 {
-
-
     /**
      * @param string $command
-     * @param array $arguments
-     *
-     * @return string
+     * @param array  $arguments
      *
      * @throws ExecuteFailedException
+     *
+     * @return string
      */
     private static function run(string $command, array $arguments = [])
     {
-
-        $arguments = array_map(fn($argument) => escapeshellarg($argument), $arguments);
+        $arguments = array_map(fn ($argument) => escapeshellarg($argument), $arguments);
 
         $command = escapeshellcmd(count($arguments) ? sprintf($command, ...$arguments) : $command);
 
@@ -37,54 +34,51 @@ class Exec
         return $result;
     }
 
-
     /**
      * @param $link
      *
-     * @return string
-     *
      * @throws ExecuteFailedException
+     *
+     * @return string
      */
     public static function readlink($link)
     {
         return self::run('readlink -f %s', [$link]);
     }
 
-
     /**
      * @param string $link
      * @param string $path
      *
-     * @return string
-     *
      * @throws ExecuteFailedException
+     *
+     * @return string
      */
     public static function ln(string $link, string $path)
     {
         return self::run('ln -sfn %s %s', [$path, $link]);
     }
 
-
     /**
      * @param string $from
      * @param string $to
      *
-     * @return string
-     *
      * @throws ExecuteFailedException
+     *
+     * @return string
      */
-    public static function rsync(string $from, string $to) {
+    public static function rsync(string $from, string $to)
+    {
         return self::run('rsync -aW --no-compress %s %s', [$from, $to]);
     }
 
-
-
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
+     *
+     * @return string
      */
-    public static function getGitHash() {
+    public static function getGitHash()
+    {
         return self::run('git log --pretty="%h" -n1 HEAD');
     }
 }

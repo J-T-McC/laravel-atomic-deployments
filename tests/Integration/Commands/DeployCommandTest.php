@@ -2,20 +2,17 @@
 
 namespace Tests\Integration\Commands;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 use Tests\TestCase;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 class DeployCommandTest extends TestCase
 {
-
     use RefreshDatabase;
-
 
     /**
      * @test
@@ -38,20 +35,20 @@ class DeployCommandTest extends TestCase
 
         $this->dontSeeInConsoleOutput('Atomic deployment rollback has been requested');
 
-        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir-1/'));
+        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath.'/test-dir-1/'));
         $this->assertFalse($this->fileSystem->exists($this->deploymentLink));
         $this->assertEmpty(AtomicDeployment::all());
     }
 
-
     /**
      * @test
      */
-    public function it_does_not_migrate_on_dry_run() {
+    public function it_does_not_migrate_on_dry_run()
+    {
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
 
         //add file to 'deployment' that does not exist in 'build' for migrate test
-        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath . '/test-dir-1/migration/test-folder');
+        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath.'/test-dir-1/migration/test-folder');
 
         Artisan::call('atomic-deployments:deploy --dry-run --directory=test-dir-2');
 
@@ -64,10 +61,9 @@ class DeployCommandTest extends TestCase
 
         $this->dontSeeInConsoleOutput('Atomic deployment rollback has been requested');
 
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir-1/migration/test-folder'));
-        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir-2/migration/test-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir-1/migration/test-folder'));
+        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath.'/test-dir-2/migration/test-folder'));
     }
-
 
     /**
      * @test
@@ -88,26 +84,25 @@ class DeployCommandTest extends TestCase
             'Atomic deployment rollback has been requested',
         ]);
 
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir/build-contents-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir/build-contents-folder'));
         $this->assertTrue($this->fileSystem->exists($this->deploymentLink));
 
         $deployment = AtomicDeployment::first();
         $this->assertNotEmpty($deployment);
-        $this->assertTrue((int)$deployment->deployment_status === DeploymentStatus::SUCCESS);
-
+        $this->assertTrue((int) $deployment->deployment_status === DeploymentStatus::SUCCESS);
     }
-
 
     /**
      * @test
      */
-    public function it_allows_migrate_on_run() {
+    public function it_allows_migrate_on_run()
+    {
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
 
         //add file to 'deployment' that does not exist in 'build' for migrate test
-        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath . '/test-dir-1/migration/test-folder');
+        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath.'/test-dir-1/migration/test-folder');
 
-        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir-2/migration/test-folder'));
+        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath.'/test-dir-2/migration/test-folder'));
 
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
 
@@ -120,17 +115,17 @@ class DeployCommandTest extends TestCase
 
         $this->dontSeeInConsoleOutput('Atomic deployment rollback has been requested');
 
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir-1/migration/test-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir-1/migration/test-folder'));
 
         //confirm migrate logic copied test folder
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir-2/migration/test-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir-2/migration/test-folder'));
     }
-
 
     /**
      * @test
      */
-    public function it_allows_swapping_between_deployments() {
+    public function it_allows_swapping_between_deployments()
+    {
 
         //create two builds
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
@@ -170,8 +165,8 @@ class DeployCommandTest extends TestCase
     /**
      * @test
      */
-    public function it_cleans_old_build_folders_based_on_build_limit() {
-
+    public function it_cleans_old_build_folders_based_on_build_limit()
+    {
         $this->app['config']->set('atomic-deployments.build-limit', 1);
 
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
@@ -194,11 +189,11 @@ class DeployCommandTest extends TestCase
         $this->assertTrue(AtomicDeployment::withTrashed()->get()->count() === 5);
     }
 
-
     /**
      * @test
      */
-    public function it_dispatches_deployment_successful_event_on_build() {
+    public function it_dispatches_deployment_successful_event_on_build()
+    {
         $this->expectsEvents(DeploymentSuccessful::class);
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
     }
@@ -206,8 +201,8 @@ class DeployCommandTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_deployment_successful_event_on_deployment_swap() {
-
+    public function it_dispatches_deployment_successful_event_on_deployment_swap()
+    {
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
 
@@ -219,22 +214,17 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --hash=test-dir-1');
         $deployment = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append('isCurrentlyDeployed')->toArray();
         $this->assertTrue($deployment['isCurrentlyDeployed']);
-
     }
-
 
     /**
      * @test
      */
-    public function it_dispatches_deployment_failed_event_on_build_fail() {
+    public function it_dispatches_deployment_failed_event_on_build_fail()
+    {
         //force invalid path exception
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
-        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath . '/deployments');
+        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
         $this->expectsEvents(DeploymentFailed::class);
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
     }
-
-
-
 }
-

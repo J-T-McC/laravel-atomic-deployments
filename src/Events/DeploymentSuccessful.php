@@ -10,20 +10,21 @@ use JTMcC\AtomicDeployments\Services\AtomicDeployments;
 
 class DeploymentSuccessful implements ShouldQueue
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public AtomicDeployments $deploymentService;
     public ?AtomicDeployment $deployment = null;
 
     /**
      * DeploymentSuccessful constructor.
+     *
      * @param AtomicDeployments $deploymentService
-     * @param mixed $deployment
+     * @param mixed             $deployment
      */
     public function __construct(AtomicDeployments $deploymentService, ?AtomicDeployment $deployment = null)
     {
         $this->deploymentService = $deploymentService;
         $this->deployment = $deployment;
     }
-
 }
