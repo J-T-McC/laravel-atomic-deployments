@@ -2,24 +2,20 @@
 
 namespace Tests\Integration\Commands;
 
-use Tests\TestCase;
-use JTMcC\AtomicDeployments\Models\AtomicDeployment;
-
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use Tests\TestCase;
 
 class ListCommandTest extends TestCase
 {
-
     use RefreshDatabase;
-
 
     /**
      * @test
      */
     public function it_lists_available_builds()
     {
-
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-3');
@@ -44,10 +40,6 @@ class ListCommandTest extends TestCase
             "{$this->deploymentsPath}/test-dir-5",
         ]);
 
-        $this->dontSeeInConsoleOutput( "{$this->deploymentsPath}/test-dir-1");
-
+        $this->dontSeeInConsoleOutput("{$this->deploymentsPath}/test-dir-1");
     }
-
-
 }
-

@@ -3,16 +3,13 @@
 namespace JTMcC\AtomicDeployments\Commands;
 
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
-use JTMcC\AtomicDeployments\Services\AtomicDeployments;
-
-use JTMcC\AtomicDeployments\Models\AtomicDeployment;
-use JTMcC\AtomicDeployments\Services\Output;
-
 use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
+use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use JTMcC\AtomicDeployments\Services\AtomicDeployments;
+use JTMcC\AtomicDeployments\Services\Output;
 
 class DeployCommand extends BaseCommand
 {
-
     protected $signature = 'atomic-deployments:deploy 
     {--hash= : Specify a previous deployments commit hash/deploy-dir to deploy }
     {--directory= : Define your deploy folder name. Defaults to current HEAD hash }
@@ -22,7 +19,7 @@ class DeployCommand extends BaseCommand
 
     public function handle()
     {
-        Output::alert("Running Atomic Deployment");
+        Output::alert('Running Atomic Deployment');
 
         $buildPath = config('atomic-deployments.build-path');
         $deploymentLink = config('atomic-deployments.deployment-link');
@@ -57,22 +54,18 @@ class DeployCommand extends BaseCommand
                     $atomicDeployment->rollback();
                 }
             }
-
         } else {
             Output::info('Running Deployment...');
 
-            if($deployDir = trim($this->option('directory'))) {
+            if ($deployDir = trim($this->option('directory'))) {
                 Output::info("Deployment directory option set. Deployment will use {$deployDir}");
                 $atomicDeployment->setDeploymentDirectory($deployDir);
             }
 
-            $atomicDeployment->deploy(fn() => $atomicDeployment->cleanBuilds(config('atomic-deployments.build-limit')));
+            $atomicDeployment->deploy(fn () => $atomicDeployment->cleanBuilds(config('atomic-deployments.build-limit')));
         }
 
-        Output::info("Finished");
+        Output::info('Finished');
         ConsoleOutput::line('');
-
     }
-
-
 }

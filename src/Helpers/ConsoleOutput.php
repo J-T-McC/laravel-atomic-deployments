@@ -6,9 +6,7 @@ use Illuminate\Console\Command;
 
 class ConsoleOutput
 {
-
     public static ?Command $runningCommand = null;
-
 
     /**
      * @param Command $runningCommand
@@ -17,7 +15,6 @@ class ConsoleOutput
     {
         static::$runningCommand = $runningCommand;
     }
-
 
     /**
      * @param string $method
@@ -31,5 +28,4 @@ class ConsoleOutput
 
         static::$runningCommand->$method(...$arguments);
     }
-
 }

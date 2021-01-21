@@ -2,13 +2,12 @@
 
 namespace JTMcC\AtomicDeployments\Commands;
 
-use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
+use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 
 class ListCommand extends BaseCommand
 {
-
     protected $signature = 'atomic-deployments:list';
 
     protected $description = 'List currently available deployments';
@@ -25,14 +24,16 @@ class ListCommand extends BaseCommand
             'deployment_link',
             'deployment_status',
             'created_at',
-        )->get()->map(function($deployment) {
+        )->get()->map(function ($deployment) {
             $deployment->append('isCurrentlyDeployed');
             $deployment->deployment_status = DeploymentStatus::getNameFromValue($deployment->deployment_status);
+
             return $deployment;
         });
 
         if (!$deployments->count()) {
             ConsoleOutput::info('No deployments found');
+
             return;
         }
 
@@ -41,5 +42,4 @@ class ListCommand extends BaseCommand
         ConsoleOutput::table($titles, $deployments);
         ConsoleOutput::line('');
     }
-
 }
