@@ -16,15 +16,4 @@ class FileHelperTest extends TestCase
         $this->expectException(InvalidPathException::class);
         FileHelper::confirmPathsExist('not_a_real_path');
     }
-
-    /**
-     * @test
-     */
-    public function file_helper_creates_and_confirms_new_directory()
-    {
-        $path = self::tmpFolder.'new-dir';
-        FileHelper::createDirectory($path);
-        $result = FileHelper::confirmPathsExist($path);
-        $this->assertTrue($result);
-    }
 }

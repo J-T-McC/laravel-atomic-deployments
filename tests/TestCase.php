@@ -5,6 +5,7 @@ namespace Tests;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
+use JTMcC\AtomicDeployments\Services\AtomicDeploymentService;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -108,5 +109,16 @@ abstract class TestCase extends BaseTestCase
         foreach ($searchStrings as $searchString) {
             $this->assertStringNotContainsString((string) $searchString, $output);
         }
+    }
+
+    public static function getAtomicDeployment($hash = '')
+    {
+        $atomicDeployment = AtomicDeploymentService::create();
+
+        if (!empty($hash)) {
+            $atomicDeployment->getDeployment()->setDeploymentDirectory($hash);
+        }
+
+        return $atomicDeployment;
     }
 }

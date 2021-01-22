@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
+use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 use Tests\TestCase;
@@ -22,12 +23,11 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --dry-run --directory=test-dir-1');
 
         $this->seeInConsoleOutput([
-            'Deployment directory option set. Deployment will use test-dir-1',
+            'Deployment directory option set - Deployment will use directory: test-dir-1',
             'Running Deployment...',
             'Dry run - changes will not be made',
             'Dry run - Skipping deployment status update',
             'Dry run - Skipping creating deployment directory',
-            'Dry run - Skipping required directory exists check for:',
             'Dry run - Skipping link comparison',
             'Dry run - Skipping directory sync',
             'Dry run - Skipping symbolic link deployment',
@@ -53,7 +53,7 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --dry-run --directory=test-dir-2');
 
         $this->seeInConsoleOutput([
-            'Deployment directory option set. Deployment will use test-dir-2',
+            'Deployment directory option set - Deployment will use directory: test-dir-2',
             'Running Deployment...',
             'Dry run - changes will not be made',
             'Dry run - skipping migrations',
@@ -73,7 +73,7 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --directory=test-dir');
 
         $this->seeInConsoleOutput([
-            'Deployment directory option set. Deployment will use test-dir',
+            'Deployment directory option set - Deployment will use directory: test-dir',
             'Running Deployment...',
             'No previous deployment detected for this link',
             'Build link confirmed',
@@ -107,7 +107,7 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
 
         $this->seeInConsoleOutput([
-            'Deployment directory option set. Deployment will use test-dir-2',
+            'Deployment directory option set - Deployment will use directory: test-dir-2',
             'Running Deployment...',
             'Running migration for pattern migration/*',
             'Finished migration for pattern migration/*',
@@ -151,7 +151,7 @@ class DeployCommandTest extends TestCase
         //swap build to our first deployment
         $this->seeInConsoleOutput([
             'Updating symlink to previous build: test-dir-1',
-            'Link created',
+            'Build link confirmed',
         ]);
 
         $deployment1 = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append('isCurrentlyDeployed')->toArray();
@@ -222,6 +222,7 @@ class DeployCommandTest extends TestCase
     public function it_dispatches_deployment_failed_event_on_build_fail()
     {
         //force invalid path exception
+        $this->expectException(InvalidPathException::class);
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
         $this->expectsEvents(DeploymentFailed::class);
