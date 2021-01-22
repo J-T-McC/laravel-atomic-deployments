@@ -1,5 +1,7 @@
 # Atomic Deployment Package for Laravel Framework
-![run-tests](https://github.com/J-T-McC/laravel-atomic-deployments/workflows/run-tests/badge.svg) [![StyleCI](https://github.styleci.io/repos/330310979/shield?branch=main)](https://github.styleci.io/repos/330310979?branch=main)
+![run-tests](https://github.com/J-T-McC/laravel-atomic-deployments/workflows/run-tests/badge.svg)
+[![StyleCI](https://github.styleci.io/repos/330310979/shield?branch=main)](https://github.styleci.io/repos/330310979?branch=main)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
 The purpose of this package is to introduce local zero-downtime deployments into a laravel application.
 
@@ -43,36 +45,45 @@ return [
 
     /**
      * Symbolic link to the current deployed build
-     * This path should be used for schedules and setting your web root
+     * This path should be used for schedules and setting your web root.
      */
     'deployment-link' => env('ATM_DEPLOYMENT_LINK'),
 
     /**
      * The primary build folder
-     * This folder is where all deployments ran and ultimately copied to a deployment directory
+     * This folder is where all deployments ran and ultimately copied to a deployment directory.
      */
     'build-path' => env('ATM_BUILD'),
 
     /**
      * Production build directory
      * Builds are copied here and linked for deployment
-     * Ensure this directory has the required permissions to allow php and your webserver to run your application here
+     * Ensure this directory has the required permissions to allow php and your webserver to run your application here.
      */
     'deployments-path' => env('ATM_DEPLOYMENTS'),
 
     /**
      * Max number of build directories allowed
-     * Once limit is hit, old deployments will be removed automatically after a successful build
+     * Once limit is hit, old deployments will be removed automatically after a successful build.
      */
     'build-limit' => 10,
 
     /**
-     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern
+     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern.
+     *
      * @see https://www.php.net/manual/en/function.glob.php
      */
     'migrate' => [
-//        'storage/framework/sessions/*',
-    ]
+        //        'storage/framework/sessions/*',
+    ],
+
+    /**
+     * Deployment class used.
+     *
+     * Add custom deployments by implementing @see \JTMcC\AtomicDeployments\Interfaces\DeploymentInterface
+     * and adding your class to this config property
+     */
+    'deployment-class' => \JTMcC\AtomicDeployments\Services\Deployment::class,
 
 ];
 ```

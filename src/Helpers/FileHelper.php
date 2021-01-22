@@ -24,14 +24,4 @@ class FileHelper
 
         return true;
     }
-
-    /**
-     * @param $path
-     * @param int   $mode
-     * @param false $recursive
-     */
-    public static function createDirectory($path, $mode = 0755, $recursive = true): void
-    {
-        File::ensureDirectoryExists($path, $mode, $recursive);
-    }
 }

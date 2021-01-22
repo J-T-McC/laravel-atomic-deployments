@@ -79,6 +79,6 @@ class Exec
      */
     public static function getGitHash()
     {
-        return self::run('git log --pretty="%h" -n1 HEAD');
+        return self::run('git log --pretty="%h" -n1');
     }
 }

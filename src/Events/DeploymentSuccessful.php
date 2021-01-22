@@ -6,23 +6,23 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
-use JTMcC\AtomicDeployments\Services\AtomicDeployments;
+use JTMcC\AtomicDeployments\Services\AtomicDeploymentService;
 
 class DeploymentSuccessful implements ShouldQueue
 {
     use Dispatchable;
     use SerializesModels;
 
-    public AtomicDeployments $deploymentService;
+    public AtomicDeploymentService $deploymentService;
     public ?AtomicDeployment $deployment = null;
 
     /**
      * DeploymentSuccessful constructor.
      *
-     * @param AtomicDeployments $deploymentService
-     * @param mixed             $deployment
+     * @param AtomicDeploymentService $deploymentService
+     * @param AtomicDeployment|null   $deployment
      */
-    public function __construct(AtomicDeployments $deploymentService, ?AtomicDeployment $deployment = null)
+    public function __construct(AtomicDeploymentService $deploymentService, AtomicDeployment $deployment = null)
     {
         $this->deploymentService = $deploymentService;
         $this->deployment = $deployment;
