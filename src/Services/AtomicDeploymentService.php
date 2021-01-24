@@ -242,12 +242,13 @@ class AtomicDeploymentService
     /**
      * @throws ExecuteFailedException
      */
-    public function updateSymlinks() {
-
+    public function updateSymlinks()
+    {
         Output::info('Correcting old symlinks that still reference the build directory');
 
-        if($this->isDryRun()) {
+        if ($this->isDryRun()) {
             Output::warn('Dry run - skipping symlink corrections');
+
             return;
         }
 

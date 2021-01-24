@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace JTMcC\AtomicDeployments\Services;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Support\Str;
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Helpers\FileHelper;
@@ -71,12 +70,10 @@ class Deployment implements DeploymentInterface
         $this->setDeploymentPath();
     }
 
-
     public function getDeploymentDirectory(): string
     {
         return $this->deploymentDirectory;
     }
-
 
     /**
      * Get the current symlinked deployment path.
@@ -96,13 +93,15 @@ class Deployment implements DeploymentInterface
     }
 
     /**
-     * @return string
      * @throws ExecuteFailedException
+     *
+     * @return string
      */
-    public function getDirectoryName() {
-        switch($this->directoryNaming) {
+    public function getDirectoryName()
+    {
+        switch ($this->directoryNaming) {
             case 'rand':
-                return Str::random(5) . time();
+                return Str::random(5).time();
             case 'git':
             default:
                 return Exec::getGitHash();

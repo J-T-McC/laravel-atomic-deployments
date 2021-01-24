@@ -5,7 +5,6 @@ namespace JTMcC\AtomicDeployments\Helpers;
 use Illuminate\Support\Facades\File;
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
-
 use JTMcC\AtomicDeployments\Services\Exec;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -31,21 +30,22 @@ class FileHelper
     }
 
     /**
-     * Recursively update symbolic links with new endpoint
+     * Recursively update symbolic links with new endpoint.
      *
      * @param $from
      * @param $to
      *
      * @throws ExecuteFailedException
      */
-    public static function recursivelyUpdateSymlinks($from, $to) {
+    public static function recursivelyUpdateSymlinks($from, $to)
+    {
         $dir = new RecursiveDirectoryIterator($to);
-        foreach(new RecursiveIteratorIterator($dir) as $file) {
-            if(is_link($file)) {
+        foreach (new RecursiveIteratorIterator($dir) as $file) {
+            if (is_link($file)) {
                 $link = $file->getPathName();
                 $target = $file->getLinkTarget();
                 $newPath = str_replace($from, $to, $target);
-                if($target !== $newPath) {
+                if ($target !== $newPath) {
                     Exec::ln($link, $newPath);
                 }
             }

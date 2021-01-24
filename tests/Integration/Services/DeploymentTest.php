@@ -26,16 +26,18 @@ class DeploymentTest extends TestCase
     /**
      * @test
      */
-    public function it_sets_deployment_directory() {
+    public function it_sets_deployment_directory()
+    {
         $atomicDeployment = self::getDeployment();
         $atomicDeployment->setDeploymentDirectory('abc123');
-        $this->assertTrue( $atomicDeployment->getDeploymentDirectory() === 'abc123');
+        $this->assertTrue($atomicDeployment->getDeploymentDirectory() === 'abc123');
     }
 
     /**
      * @test
      */
-    public function it_names_deployment_folder_using_config_directory_naming_git() {
+    public function it_names_deployment_folder_using_config_directory_naming_git()
+    {
         $gitHash = Exec::getGitHash();
         $atomicDeployment = self::getDeployment();
         $atomicDeployment->createDirectory();
@@ -45,7 +47,8 @@ class DeploymentTest extends TestCase
     /**
      * @test
      */
-    public function it_names_deployment_folder_using_config_directory_naming_rand() {
+    public function it_names_deployment_folder_using_config_directory_naming_rand()
+    {
         $this->app['config']->set('atomic-deployments.directory-naming', 'rand');
         $gitHash = Exec::getGitHash();
         $atomicDeployment = self::getDeployment();
@@ -57,7 +60,8 @@ class DeploymentTest extends TestCase
     /**
      * @test
      */
-    public function it_sets_deployment_path() {
+    public function it_sets_deployment_path()
+    {
         $atomicDeployment = self::getDeployment();
         $atomicDeployment->setDeploymentPath();
         $this->assertNotEmpty(trim($atomicDeployment->getDeploymentPath()));
@@ -66,7 +70,8 @@ class DeploymentTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_a_directory() {
+    public function it_creates_a_directory()
+    {
         $atomicDeployment = self::getDeployment();
         $atomicDeployment->createDirectory();
         $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeploymentPath()));
@@ -75,10 +80,10 @@ class DeploymentTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_model_status() {
+    public function it_updates_model_status()
+    {
         $atomicDeployment = self::getDeployment();
         $atomicDeployment->updateDeploymentStatus(DeploymentStatus::SUCCESS);
-        $this->assertTrue((int)AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
+        $this->assertTrue((int) AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
     }
-
 }

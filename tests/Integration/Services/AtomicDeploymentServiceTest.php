@@ -96,7 +96,8 @@ class AtomicDeploymentServiceTest extends TestCase
     /**
      * @test
      */
-    public function it_rolls_back_symbolic_link_to_deployment_detected_on_boot() {
+    public function it_rolls_back_symbolic_link_to_deployment_detected_on_boot()
+    {
         $atomicDeployment1 = self::getAtomicDeployment();
         $atomicDeployment1->createDeploymentDirectory();
         $atomicDeployment1->linkDeployment();
@@ -117,10 +118,11 @@ class AtomicDeploymentServiceTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_closure_on_success() {
+    public function it_calls_closure_on_success()
+    {
         $this->expectsEvents(DeploymentSuccessful::class);
         $success = false;
-        self::getAtomicDeployment()->deploy(function () use(&$success) {
+        self::getAtomicDeployment()->deploy(function () use (&$success) {
             $success = true;
         });
         $this->assertTrue($success);
@@ -129,14 +131,15 @@ class AtomicDeploymentServiceTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_closure_on_failure() {
+    public function it_calls_closure_on_failure()
+    {
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
         $this->expectsEvents(DeploymentFailed::class);
         $this->expectException(InvalidPathException::class);
         $failed = false;
         $atomicDeployment = self::getAtomicDeployment();
-        $atomicDeployment->deploy(fn() => '', function () use(&$failed) {
+        $atomicDeployment->deploy(fn () => '', function () use (&$failed) {
             $failed = true;
         });
         $this->assertTrue($failed);

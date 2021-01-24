@@ -28,7 +28,7 @@ return [
     'build-limit' => 10,
 
     /**
-     * Logic used when creating a deployment directory
+     * Logic used when creating a deployment directory.
      *
      * Default => git - uses hash for current HEAD
      * Options: [ git, rand ]
@@ -51,7 +51,7 @@ return [
      * @see https://www.php.net/manual/en/function.glob.php
      */
     'migrate' => [
-    //        'storage/framework/sessions/*',
+        //        'storage/framework/sessions/*',
     ],
 
 ];

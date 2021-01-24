@@ -25,13 +25,13 @@ class FileHelperTest extends TestCase
     {
 
         //create test build & deployment scenario
-        $oldSite = self::tmpFolder . 'build/site';
-        $oldContent = $oldSite . '/content';
-        $oldLink = $oldSite . '/link';
+        $oldSite = self::tmpFolder.'build/site';
+        $oldContent = $oldSite.'/content';
+        $oldLink = $oldSite.'/link';
 
-        $newSite = self::tmpFolder . 'deployments/site';
-        $newContent = $newSite . '/content';
-        $newLink = $newSite . '/link';
+        $newSite = self::tmpFolder.'deployments/site';
+        $newContent = $newSite.'/content';
+        $newLink = $newSite.'/link';
 
         $this->fileSystem->ensureDirectoryExists($oldContent);
         $this->fileSystem->ensureDirectoryExists($newSite);
@@ -41,12 +41,11 @@ class FileHelperTest extends TestCase
         $this->assertTrue(Exec::readlink($oldLink) === $oldContent);
 
         //copy old content to deployment folder and confirm link still points to build folder
-        Exec::rsync($oldSite . '/', $newSite . '/');
+        Exec::rsync($oldSite.'/', $newSite.'/');
         $this->assertTrue(Exec::readlink($newLink) === $oldContent);
 
         //convert links to new deployment path and confirm
         FileHelper::recursivelyUpdateSymlinks($oldSite, $newSite);
         $this->assertTrue(Exec::readlink($newLink) === $newContent);
-
     }
 }

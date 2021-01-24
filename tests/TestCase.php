@@ -126,7 +126,8 @@ abstract class TestCase extends BaseTestCase
     /**
      * @return Deployment
      */
-    public static function getDeployment() {
+    public static function getDeployment()
+    {
         return app(Deployment::class);
     }
 }
