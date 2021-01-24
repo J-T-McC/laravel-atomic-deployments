@@ -40,11 +40,11 @@ class DeployCommand extends BaseCommand
                 );
 
                 try {
-                    $atomicDeployment->getDeployment()->linkDeployment();
+                    $atomicDeployment->getDeployment()->link();
                     $atomicDeployment->confirmSymbolicLink();
                     DeploymentSuccessful::dispatch($atomicDeployment, $deploymentModel);
                 } catch (\Throwable $e) {
-                    $atomicDeployment->failed();
+                    $atomicDeployment->fail();
                     Output::throwable($e);
                 }
             }
@@ -56,11 +56,11 @@ class DeployCommand extends BaseCommand
             try {
                 if ($deployDir = trim($this->option('directory'))) {
                     Output::info("Deployment directory option set - Deployment will use directory: {$deployDir} ");
-                    $atomicDeployment->getDeployment()->setDeploymentDirectory($deployDir);
+                    $atomicDeployment->getDeployment()->setDirectory($deployDir);
                 }
                 $atomicDeployment->deploy(fn () => $atomicDeployment->cleanBuilds(config('atomic-deployments.build-limit')));
             } catch (\Throwable $e) {
-                $atomicDeployment->failed();
+                $atomicDeployment->fail();
                 Output::throwable($e);
             }
         }

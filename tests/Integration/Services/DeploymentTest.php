@@ -2,6 +2,7 @@
 
 namespace Tests\Integration\Services;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
@@ -17,10 +18,10 @@ class DeploymentTest extends TestCase
      */
     public function it_links_and_confirms_deployment()
     {
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->createDirectory();
-        $atomicDeployment->linkDeployment();
-        $this->assertTrue($atomicDeployment->isDeployed());
+        $deployment = self::getDeployment();
+        $deployment->createDirectory();
+        $deployment->link();
+        $this->assertTrue($deployment->isDeployed());
     }
 
     /**
@@ -28,9 +29,9 @@ class DeploymentTest extends TestCase
      */
     public function it_sets_deployment_directory()
     {
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->setDeploymentDirectory('abc123');
-        $this->assertTrue($atomicDeployment->getDeploymentDirectory() === 'abc123');
+        $deployment = self::getDeployment();
+        $deployment->setDirectory('abc123');
+        $this->assertTrue($deployment->getDirectory() === 'abc123');
     }
 
     /**
@@ -39,9 +40,9 @@ class DeploymentTest extends TestCase
     public function it_names_deployment_folder_using_config_directory_naming_git()
     {
         $gitHash = Exec::getGitHash();
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->createDirectory();
-        $this->assertTrue($atomicDeployment->getDirectoryName() === $gitHash);
+        $deployment = self::getDeployment();
+        $deployment->createDirectory();
+        $this->assertTrue($deployment->getDirectoryName() === $gitHash);
     }
 
     /**
@@ -51,10 +52,23 @@ class DeploymentTest extends TestCase
     {
         $this->app['config']->set('atomic-deployments.directory-naming', 'rand');
         $gitHash = Exec::getGitHash();
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->createDirectory();
-        $this->assertNotEmpty(trim($atomicDeployment->getDirectoryName()));
-        $this->assertTrue($atomicDeployment->getDirectoryName() !== $gitHash);
+        $deployment = self::getDeployment();
+        $deployment->createDirectory();
+        $this->assertNotEmpty(trim($deployment->getDirectoryName()));
+        $this->assertTrue($deployment->getDirectoryName() !== $gitHash);
+    }
+
+    /**
+     * @test
+     */
+    public function it_names_deployment_folder_using_config_directory_naming_datetime()
+    {
+        $this->app['config']->set('atomic-deployments.directory-naming', 'datetime');
+        $shouldFind = Carbon::now()->format('Y-m-d_H-i');
+        $deployment = self::getDeployment();
+        $deployment->createDirectory();
+        $this->assertNotEmpty(trim($deployment->getDirectoryName()));
+        $this->assertStringContainsString($shouldFind, $deployment->getDirectoryName());
     }
 
     /**
@@ -62,9 +76,9 @@ class DeploymentTest extends TestCase
      */
     public function it_sets_deployment_path()
     {
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->setDeploymentPath();
-        $this->assertNotEmpty(trim($atomicDeployment->getDeploymentPath()));
+        $deployment = self::getDeployment();
+        $deployment->setPath();
+        $this->assertNotEmpty(trim($deployment->getPath()));
     }
 
     /**
@@ -72,9 +86,9 @@ class DeploymentTest extends TestCase
      */
     public function it_creates_a_directory()
     {
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->createDirectory();
-        $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeploymentPath()));
+        $deployment = self::getDeployment();
+        $deployment->createDirectory();
+        $this->assertTrue($this->fileSystem->exists($deployment->getPath()));
     }
 
     /**
@@ -82,8 +96,8 @@ class DeploymentTest extends TestCase
      */
     public function it_updates_model_status()
     {
-        $atomicDeployment = self::getDeployment();
-        $atomicDeployment->updateDeploymentStatus(DeploymentStatus::SUCCESS);
+        $deployment = self::getDeployment();
+        $deployment->updateStatus(DeploymentStatus::SUCCESS);
         $this->assertTrue((int) AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
     }
 }

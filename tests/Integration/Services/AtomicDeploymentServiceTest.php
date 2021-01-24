@@ -43,7 +43,7 @@ class AtomicDeploymentServiceTest extends TestCase
     {
         $atomicDeployment = self::getAtomicDeployment();
         $atomicDeployment->createDeploymentDirectory();
-        $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeployment()->getDeploymentPath()));
+        $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeployment()->getPath()));
     }
 
     /**
@@ -54,7 +54,7 @@ class AtomicDeploymentServiceTest extends TestCase
         $atomicDeployment = self::getAtomicDeployment('abc123');
         $atomicDeployment->createDeploymentDirectory();
         $atomicDeployment->copyDeploymentContents();
-        $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeployment()->getDeploymentPath().'/build-contents-folder'));
+        $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeployment()->getPath().'/build-contents-folder'));
     }
 
     /**

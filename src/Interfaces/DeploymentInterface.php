@@ -6,21 +6,21 @@ interface DeploymentInterface
 {
     public function getBuildPath();
 
-    public function setDeploymentDirectory(string $name = '');
+    public function setDirectory(string $name = '');
 
-    public function setDeploymentPath();
+    public function setPath();
 
-    public function getDeploymentPath();
+    public function getPath();
 
-    public function getCurrentDeploymentPath();
+    public function getCurrentPath();
 
     public function copyContents();
 
-    public function linkDeployment();
+    public function link();
 
-    public function getDeploymentLink();
+    public function getLink();
 
     public function getModel();
 
-    public function updateDeploymentStatus(int $status);
+    public function updateStatus(int $status);
 }

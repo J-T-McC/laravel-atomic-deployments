@@ -117,7 +117,7 @@ abstract class TestCase extends BaseTestCase
         $atomicDeployment = AtomicDeploymentService::create();
 
         if (!empty($hash)) {
-            $atomicDeployment->getDeployment()->setDeploymentDirectory($hash);
+            $atomicDeployment->getDeployment()->setDirectory($hash);
         }
 
         return $atomicDeployment;

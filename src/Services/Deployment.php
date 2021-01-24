@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace JTMcC\AtomicDeployments\Services;
 
-use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
-use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
-use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
+use Illuminate\Support\Facades\File;
 use JTMcC\AtomicDeployments\Helpers\FileHelper;
-use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
+use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
+use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 
 class Deployment implements DeploymentInterface
 {
@@ -51,9 +52,9 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function linkDeployment(): void
+    public function link(): void
     {
-        Exec::ln($this->deploymentLink, $this->getDeploymentPath());
+        Exec::ln($this->deploymentLink, $this->getPath());
     }
 
     /***
@@ -62,15 +63,18 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function setDeploymentDirectory(string $name = ''): void
+    public function setDirectory(string $name = ''): void
     {
         $this->deploymentDirectory = trim($name);
 
         //update deployment path to use new directory
-        $this->setDeploymentPath();
+        $this->setPath();
     }
 
-    public function getDeploymentDirectory(): string
+    /**
+     * @return string
+     */
+    public function getDirectory(): string
     {
         return $this->deploymentDirectory;
     }
@@ -82,7 +86,7 @@ class Deployment implements DeploymentInterface
      *
      * @return string
      */
-    public function getCurrentDeploymentPath(): string
+    public function getCurrentPath(): string
     {
         $result = Exec::readlink($this->deploymentLink);
         if ($result === $this->deploymentLink) {
@@ -100,6 +104,8 @@ class Deployment implements DeploymentInterface
     public function getDirectoryName()
     {
         switch ($this->directoryNaming) {
+            case 'datetime':
+                return Carbon::now()->format('Y-m-d_H-i-s');
             case 'rand':
                 return Str::random(5).time();
             case 'git':
@@ -114,10 +120,10 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function setDeploymentPath(): void
+    public function setPath(): void
     {
         if (empty(trim($this->deploymentDirectory))) {
-            $this->setDeploymentDirectory($this->getDirectoryName());
+            $this->setDirectory($this->getDirectoryName());
         }
 
         if (strpos($this->deploymentsPath, $this->buildPath) !== false) {
@@ -135,10 +141,10 @@ class Deployment implements DeploymentInterface
      *
      * @return string
      */
-    public function getDeploymentPath(): string
+    public function getPath(): string
     {
         if (empty($this->deploymentPath)) {
-            $this->setDeploymentPath();
+            $this->setPath();
         }
 
         return $this->deploymentPath;
@@ -150,10 +156,10 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function updateDeploymentStatus(int $status): void
+    public function updateStatus(int $status): void
     {
         $this->model->updateOrCreate(
-            ['deployment_path' => $this->getDeploymentPath()],
+            ['deployment_path' => $this->getPath()],
             [
                 'commit_hash'       => $this->deploymentDirectory,
                 'build_path'        => $this->buildPath,
@@ -196,7 +202,7 @@ class Deployment implements DeploymentInterface
     /**
      * @return string
      */
-    public function getDeploymentLink(): string
+    public function getLink(): string
     {
         return $this->deploymentLink;
     }
@@ -208,7 +214,7 @@ class Deployment implements DeploymentInterface
      */
     public function isDeployed(): bool
     {
-        return $this->deploymentPath === $this->getCurrentDeploymentPath();
+        return $this->deploymentPath === $this->getCurrentPath();
     }
 
     /**
@@ -217,6 +223,6 @@ class Deployment implements DeploymentInterface
      */
     public function createDirectory(): void
     {
-        File::ensureDirectoryExists($this->getDeploymentPath(), 0755, true);
+        File::ensureDirectoryExists($this->getPath(), 0755, true);
     }
 }

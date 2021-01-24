@@ -69,13 +69,14 @@ return [
     'build-limit' => 10,
 
     /**
-     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern.
+     * Logic used when creating a deployment directory.
      *
-     * @see https://www.php.net/manual/en/function.glob.php
+     * Default => git - uses hash for current HEAD
+     * Options: [ git, rand ]
+     *
+     * If your build does not use git, use rand.
      */
-    'migrate' => [
-        //        'storage/framework/sessions/*',
-    ],
+    'directory-naming' => 'git',
 
     /**
      * Deployment class used.
@@ -86,14 +87,13 @@ return [
     'deployment-class' => \JTMcC\AtomicDeployments\Services\Deployment::class,
 
     /**
-     * Logic used when creating a deployment directory
+     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern.
      *
-     * Default => git - uses hash for current HEAD
-     * Options: [ git, rand ]
-     *
-     * If your build does not use git, use rand.
+     * @see https://www.php.net/manual/en/function.glob.php
      */
-    'directory-naming' => 'git'
+    'migrate' => [
+        //        'storage/framework/sessions/*',
+    ],
 
 ];
 ```
