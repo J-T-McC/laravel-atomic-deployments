@@ -45,7 +45,7 @@ return [
 
     /**
      * Symbolic link to the current deployed build
-     * This path should be used for schedules and setting your web root.
+     * This path will be used for schedules and setting your web root.
      */
     'deployment-link' => env('ATM_DEPLOYMENT_LINK'),
 
@@ -84,6 +84,16 @@ return [
      * and adding your class to this config property
      */
     'deployment-class' => \JTMcC\AtomicDeployments\Services\Deployment::class,
+
+    /**
+     * Logic used when creating a deployment directory
+     *
+     * Default => git - uses hash for current HEAD
+     * Options: [ git, rand ]
+     *
+     * If your build does not use git, use rand.
+     */
+    'directory-naming' => 'git'
 
 ];
 ```

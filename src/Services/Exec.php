@@ -81,4 +81,5 @@ class Exec
     {
         return self::run('git log --pretty="%h" -n1');
     }
+
 }

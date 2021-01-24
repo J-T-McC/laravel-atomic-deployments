@@ -6,6 +6,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
 use JTMcC\AtomicDeployments\Services\AtomicDeploymentService;
+use JTMcC\AtomicDeployments\Services\Deployment;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -120,5 +121,12 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $atomicDeployment;
+    }
+
+    /**
+     * @return Deployment
+     */
+    public static function getDeployment() {
+        return app(Deployment::class);
     }
 }

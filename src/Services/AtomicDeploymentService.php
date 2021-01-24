@@ -10,6 +10,7 @@ use Illuminate\Support\Pluralizer;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
+use JTMcC\AtomicDeployments\Helpers\FileHelper;
 use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment as Model;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
@@ -89,6 +90,7 @@ class AtomicDeploymentService
             $this->createDeploymentDirectory();
             $this->copyDeploymentContents();
             $this->copyMigrationContents();
+            $this->updateSymlinks();
             $this->linkDeployment();
             $this->confirmSymbolicLink();
 
@@ -123,7 +125,7 @@ class AtomicDeploymentService
 
     public function linkDeployment(): void
     {
-        Output::info("Creating web root symbolic link: {$this->deployment->getDeploymentLink()} -> {$this->deployment->getDeploymentPath()}");
+        Output::info("Creating symbolic link: {$this->deployment->getDeploymentLink()} -> {$this->deployment->getDeploymentPath()}");
         if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping symbolic link deployment');
 
@@ -237,6 +239,26 @@ class AtomicDeploymentService
         }
     }
 
+    /**
+     * @throws ExecuteFailedException
+     */
+    public function updateSymlinks() {
+
+        Output::info('Correcting old symlinks that still reference the build directory');
+
+        if($this->isDryRun()) {
+            Output::warn('Dry run - skipping symlink corrections');
+            return;
+        }
+
+        FileHelper::recursivelyUpdateSymlinks(
+            $this->getDeployment()->getBuildPath(),
+            $this->getDeployment()->getDeploymentPath()
+        );
+
+        Output::info('Finished correcting symlinks');
+    }
+
     public function rollback(): void
     {
         Output::warn('Atomic deployment rollback has been requested');
@@ -249,14 +271,13 @@ class AtomicDeploymentService
                 $this->initialDeploymentPath &&
                 $this->initialDeploymentPath !== $currentPath
             ) {
-                Output::emergency('Atomic deployment rollback has been requested');
-                Output::emergency("Attempting to link web root to {$this->initialDeploymentPath}");
+                Output::emergency("Attempting to link deployment at {$this->initialDeploymentPath}");
 
                 try {
                     //attempt to revert link to our original path
                     Exec::ln($this->deployment->getDeploymentLink(), $this->initialDeploymentPath);
                     if ($this->deployment->getCurrentDeploymentPath() === $this->initialDeploymentPath) {
-                        Output::info('Successfully rolled back symbolic web root');
+                        Output::info('Successfully rolled back symbolic link');
 
                         return;
                     }
@@ -264,7 +285,7 @@ class AtomicDeploymentService
                     Output::throwable($e);
                 }
 
-                Output::emergency('Failed to roll back symbolic web root');
+                Output::emergency('Failed to roll back symbolic link');
 
                 return;
             }
