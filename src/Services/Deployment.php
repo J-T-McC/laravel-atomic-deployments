@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JTMcC\AtomicDeployments\Services;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Helpers\FileHelper;
@@ -18,6 +19,7 @@ class Deployment implements DeploymentInterface
     protected string $buildPath;
     protected string $deploymentLink;
     protected string $deploymentsPath;
+    protected string $directoryNaming;
 
     protected string $deploymentPath = '';
     protected string $deploymentDirectory = '';
@@ -32,6 +34,7 @@ class Deployment implements DeploymentInterface
         $this->deploymentLink = config('atomic-deployments.deployment-link');
         $this->deploymentsPath = config('atomic-deployments.deployments-path');
         $this->buildPath = config('atomic-deployments.build-path');
+        $this->directoryNaming = config('atomic-deployments.directory-naming');
         $this->model = $model;
 
         if ($this->model->deployment_path) {
@@ -67,6 +70,11 @@ class Deployment implements DeploymentInterface
         $this->setDeploymentPath();
     }
 
+    public function getDeploymentDirectory(): string
+    {
+        return $this->deploymentDirectory;
+    }
+
     /**
      * Get the current symlinked deployment path.
      *
@@ -85,6 +93,22 @@ class Deployment implements DeploymentInterface
     }
 
     /**
+     * @throws ExecuteFailedException
+     *
+     * @return string
+     */
+    public function getDirectoryName()
+    {
+        switch ($this->directoryNaming) {
+            case 'rand':
+                return Str::random(5).time();
+            case 'git':
+            default:
+                return Exec::getGitHash();
+        }
+    }
+
+    /**
      * Sets full path for deployment.
      *
      * @throws ExecuteFailedException
@@ -93,9 +117,7 @@ class Deployment implements DeploymentInterface
     public function setDeploymentPath(): void
     {
         if (empty(trim($this->deploymentDirectory))) {
-            //default directory name to current HEAD hash
-            //TODO add configurable option for alternatives
-            $this->setDeploymentDirectory(Exec::getGitHash());
+            $this->setDeploymentDirectory($this->getDirectoryName());
         }
 
         if (strpos($this->deploymentsPath, $this->buildPath) !== false) {

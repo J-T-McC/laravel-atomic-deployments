@@ -4,7 +4,7 @@ return [
 
     /**
      * Symbolic link to the current deployed build
-     * This path should be used for schedules and setting your web root.
+     * This path will be used for schedules and setting your web root.
      */
     'deployment-link' => env('ATM_DEPLOYMENT_LINK'),
 
@@ -28,13 +28,14 @@ return [
     'build-limit' => 10,
 
     /**
-     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern.
+     * Logic used when creating a deployment directory.
      *
-     * @see https://www.php.net/manual/en/function.glob.php
+     * Default => git - uses hash for current HEAD
+     * Options: [ git, rand ]
+     *
+     * If your build does not use git, use rand.
      */
-    'migrate' => [
-        //        'storage/framework/sessions/*',
-    ],
+    'directory-naming' => 'git',
 
     /**
      * Deployment class used.
@@ -43,5 +44,14 @@ return [
      * and adding your class to this config property
      */
     'deployment-class' => \JTMcC\AtomicDeployments\Services\Deployment::class,
+
+    /**
+     * Migrate files|folders from the outgoing production build to your new release using a relative path and pattern.
+     *
+     * @see https://www.php.net/manual/en/function.glob.php
+     */
+    'migrate' => [
+        //        'storage/framework/sessions/*',
+    ],
 
 ];

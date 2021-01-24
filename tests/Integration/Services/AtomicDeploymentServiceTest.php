@@ -3,6 +3,8 @@
 namespace Tests\Integration\Services;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use JTMcC\AtomicDeployments\Events\DeploymentFailed;
+use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
@@ -89,5 +91,57 @@ class AtomicDeploymentServiceTest extends TestCase
         $this->expectException(InvalidPathException::class);
         $atomicDeployment = self::getAtomicDeployment();
         $atomicDeployment->createDeploymentDirectory();
+    }
+
+    /**
+     * @test
+     */
+    public function it_rolls_back_symbolic_link_to_deployment_detected_on_boot()
+    {
+        $atomicDeployment1 = self::getAtomicDeployment();
+        $atomicDeployment1->createDeploymentDirectory();
+        $atomicDeployment1->linkDeployment();
+        $this->assertTrue($atomicDeployment1->getDeployment()->isDeployed());
+
+        $atomicDeployment2 = self::getAtomicDeployment('abc123');
+        $atomicDeployment2->createDeploymentDirectory();
+        $atomicDeployment2->linkDeployment();
+
+        $this->assertTrue($atomicDeployment2->getDeployment()->isDeployed());
+        $this->assertFalse($atomicDeployment1->getDeployment()->isDeployed());
+
+        $atomicDeployment2->rollback();
+
+        $this->assertTrue($atomicDeployment1->getDeployment()->isDeployed());
+    }
+
+    /**
+     * @test
+     */
+    public function it_calls_closure_on_success()
+    {
+        $this->expectsEvents(DeploymentSuccessful::class);
+        $success = false;
+        self::getAtomicDeployment()->deploy(function () use (&$success) {
+            $success = true;
+        });
+        $this->assertTrue($success);
+    }
+
+    /**
+     * @test
+     */
+    public function it_calls_closure_on_failure()
+    {
+        $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
+        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
+        $this->expectsEvents(DeploymentFailed::class);
+        $this->expectException(InvalidPathException::class);
+        $failed = false;
+        $atomicDeployment = self::getAtomicDeployment();
+        $atomicDeployment->deploy(fn () => '', function () use (&$failed) {
+            $failed = true;
+        });
+        $this->assertTrue($failed);
     }
 }
