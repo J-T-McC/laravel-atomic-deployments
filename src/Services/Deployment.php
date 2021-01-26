@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace JTMcC\AtomicDeployments\Services;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
-use JTMcC\AtomicDeployments\Helpers\FileHelper;
-use JTMcC\AtomicDeployments\Models\AtomicDeployment;
-use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
-use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
+use Illuminate\Support\Str;
 use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
+use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
+use JTMcC\AtomicDeployments\Helpers\FileHelper;
+use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
+use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 
 class Deployment implements DeploymentInterface
 {
