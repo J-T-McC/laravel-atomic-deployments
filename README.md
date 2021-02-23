@@ -72,7 +72,7 @@ return [
      * Logic used when creating a deployment directory.
      *
      * Default => git - uses hash for current HEAD
-     * Options: [ git, rand ]
+     * Options: [ git, datetime, rand ]
      *
      * If your build does not use git, use rand.
      */
@@ -172,7 +172,7 @@ Here is a basic configuration for use with Forge
 ```shell script
 cd /home/forge/your-application.com
 git pull origin main
-$FORGE_COMPOSER install --no-interaction --prefer-dist --optimize-autoloader
+$FORGE_COMPOSER install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-progress
 
 ( flock -w 10 9 || exit 1
     echo 'Restarting FPM...'; sudo -S service $FORGE_PHP_FPM reload ) 9>/tmp/fpmlock
