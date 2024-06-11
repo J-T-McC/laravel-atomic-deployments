@@ -3,6 +3,7 @@
 namespace Tests\Integration\Services;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
@@ -120,12 +121,12 @@ class AtomicDeploymentServiceTest extends TestCase
      */
     public function it_calls_closure_on_success()
     {
-        $this->expectsEvents(DeploymentSuccessful::class);
         $success = false;
         self::getAtomicDeployment()->deploy(function () use (&$success) {
             $success = true;
         });
         $this->assertTrue($success);
+        Event::assertDispatched(DeploymentSuccessful::class);
     }
 
     /**
@@ -135,7 +136,6 @@ class AtomicDeploymentServiceTest extends TestCase
     {
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
-        $this->expectsEvents(DeploymentFailed::class);
         $this->expectException(InvalidPathException::class);
         $failed = false;
         $atomicDeployment = self::getAtomicDeployment();
@@ -143,5 +143,6 @@ class AtomicDeploymentServiceTest extends TestCase
             $failed = true;
         });
         $this->assertTrue($failed);
+        Event::assertDispatched(DeploymentFailed::class);
     }
 }

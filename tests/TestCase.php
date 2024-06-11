@@ -53,8 +53,9 @@ abstract class TestCase extends BaseTestCase
 
     public function tearDown(): void
     {
-        parent::tearDown();
         $this->fileSystem->deleteDirectory(self::tmpFolder);
+
+        parent::tearDown();
     }
 
     /**

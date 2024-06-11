@@ -311,6 +311,8 @@ class AtomicDeploymentService
     {
         if ($error = error_get_last()) {
             Output::error('Error detected during shutdown, requesting rollback');
+            Output::error(json_encode($error));
+
             $this->fail();
         }
     }

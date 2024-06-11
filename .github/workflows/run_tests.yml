@@ -9,14 +9,14 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        php: [7.4, 8.0]
-        laravel: [8.*, 7.*]
+        php: [8.2, 8.3]
+        laravel: [10.*, 11.*]
         dependency-version: [prefer-lowest, prefer-stable]
         include:
-          -   laravel: 8.*
-              testbench: 6.*
-          -   laravel: 7.*
-              testbench: 5.*
+          -   laravel: 10.*
+              testbench: 8.*
+          -   laravel: 11.*
+              testbench: 9.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
@@ -37,4 +37,4 @@ jobs:
             composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
       -   name: Execute tests
-          run: vendor/bin/phpunit
+          run: composer test

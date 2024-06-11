@@ -4,6 +4,7 @@ namespace Tests\Integration\Commands;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Event;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
@@ -194,8 +195,9 @@ class DeployCommandTest extends TestCase
      */
     public function it_dispatches_deployment_successful_event_on_build()
     {
-        $this->expectsEvents(DeploymentSuccessful::class);
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+
+        Event::assertDispatched(DeploymentSuccessful::class);
     }
 
     /**
@@ -209,11 +211,11 @@ class DeployCommandTest extends TestCase
         $deployment = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append('isCurrentlyDeployed')->toArray();
         $this->assertTrue($deployment['isCurrentlyDeployed']);
 
-        $this->expectsEvents(DeploymentSuccessful::class);
-
         Artisan::call('atomic-deployments:deploy --hash=test-dir-1');
         $deployment = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append('isCurrentlyDeployed')->toArray();
         $this->assertTrue($deployment['isCurrentlyDeployed']);
+
+        Event::assertDispatched(DeploymentSuccessful::class);
     }
 
     /**
@@ -225,7 +227,8 @@ class DeployCommandTest extends TestCase
         $this->expectException(InvalidPathException::class);
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
-        $this->expectsEvents(DeploymentFailed::class);
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+
+        Event::assertDispatched(DeploymentFailed::class);
     }
 }

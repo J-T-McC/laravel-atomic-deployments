@@ -4,15 +4,16 @@ namespace JTMcC\AtomicDeployments\Services;
 
 use Illuminate\Support\Facades\Log;
 use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
+use Throwable;
 
 class Output
 {
     /**
      * Print throwable to console | log.
      *
-     * @param \Throwable $obj
+     * @param Throwable $obj
      */
-    public static function throwable(\Throwable $obj): void
+    public static function throwable(Throwable $obj): void
     {
         $title = get_class($obj);
         $file = $obj->getFile().' line '.$obj->getLine();
