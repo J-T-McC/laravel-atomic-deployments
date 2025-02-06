@@ -9,43 +9,45 @@ use Tests\TestCase;
 
 class FileHelperTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function it_throws_invalid_path_exception_on_invalid_path()
+    public function test_it_throws_invalid_path_exception_on_invalid_path()
     {
+        // Act
         $this->expectException(InvalidPathException::class);
+
+        // Act
         FileHelper::confirmPathsExist('not_a_real_path');
     }
 
-    /**
-     * @test
-     */
-    public function it_updates_symbolic_links_to_new_path()
+    public function test_it_updates_symbolic_links_to_new_path()
     {
+        // Collect
+        $oldSite = self::TMP_FOLDER . 'build/site';
+        $oldContent = $oldSite . '/content';
+        $oldLink = $oldSite . '/link';
 
-        //create test build & deployment scenario
-        $oldSite = self::tmpFolder.'build/site';
-        $oldContent = $oldSite.'/content';
-        $oldLink = $oldSite.'/link';
-
-        $newSite = self::tmpFolder.'deployments/site';
-        $newContent = $newSite.'/content';
-        $newLink = $newSite.'/link';
+        $newSite = self::TMP_FOLDER . 'deployments/site';
+        $newContent = $newSite . '/content';
+        $newLink = $newSite . '/link';
 
         $this->fileSystem->ensureDirectoryExists($oldContent);
         $this->fileSystem->ensureDirectoryExists($newSite);
 
-        //link to old content
+        // Act
         Exec::ln($oldLink, $oldContent);
+
+        // Assert
         $this->assertTrue(Exec::readlink($oldLink) === $oldContent);
 
-        //copy old content to deployment folder and confirm link still points to build folder
-        Exec::rsync($oldSite.'/', $newSite.'/');
+        // Act
+        Exec::rsync($oldSite . '/', $newSite . '/');
+
+        // Assert
         $this->assertTrue(Exec::readlink($newLink) === $oldContent);
 
-        //convert links to new deployment path and confirm
+        // Act
         FileHelper::recursivelyUpdateSymlinks($oldSite, $newSite);
+
+        // Assert
         $this->assertTrue(Exec::readlink($newLink) === $newContent);
     }
 }

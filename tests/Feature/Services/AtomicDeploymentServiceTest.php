@@ -3,6 +3,7 @@
 namespace Tests\Integration\Services;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
 use JTMcC\AtomicDeployments\Events\DeploymentSuccessful;
 use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
@@ -14,93 +15,106 @@ class AtomicDeploymentServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
-    public function it_links_deployment()
+    public function test_it_links_deployment()
     {
+        // Collect
         $atomicDeployment = self::getAtomicDeployment();
+
+        // Act
         $atomicDeployment->linkDeployment();
+
+        // Assert
         $this->assertTrue($atomicDeployment->getDeployment()->isDeployed());
     }
 
-    /**
-     * @test
-     */
-    public function it_registers_previous_deployment_on_boot()
+    public function test_it_registers_previous_deployment_on_boot()
     {
+        // Collect
         $atomicDeployment = self::getAtomicDeployment();
         $this->assertTrue(empty($atomicDeployment->getInitialDeploymentPath()));
+
+        // Act
         $atomicDeployment->linkDeployment();
         $atomicDeployment = self::getAtomicDeployment();
+
+        // Assert
         $this->assertTrue(!empty($atomicDeployment->getInitialDeploymentPath()));
     }
 
-    /**
-     * @test
-     */
-    public function it_creates_a_deployment_directory()
+    public function test_it_creates_a_deployment_directory()
     {
+        // Collect
         $atomicDeployment = self::getAtomicDeployment();
+
+        // Act
         $atomicDeployment->createDeploymentDirectory();
+
+        // Assert
         $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeployment()->getPath()));
     }
 
-    /**
-     * @test
-     */
-    public function it_copies_deployment_contents_to_deployment_directory()
+    public function test_it_copies_deployment_contents_to_deployment_directory()
     {
+        // Collect
         $atomicDeployment = self::getAtomicDeployment('abc123');
         $atomicDeployment->createDeploymentDirectory();
+
+        // Act
         $atomicDeployment->copyDeploymentContents();
+
+        // Assert
         $this->assertTrue($this->fileSystem->exists($atomicDeployment->getDeployment()->getPath().'/build-contents-folder'));
     }
 
-    /**
-     * @test
-     */
-    public function it_updates_deployment_status_record()
+    public function test_it_updates_deployment_status_record()
     {
+        // Collect
         $hash = '123abc';
         $this->assertEmpty(AtomicDeployment::where('commit_hash', $hash)->first());
+
+        // Act
         $atomicDeployment = self::getAtomicDeployment($hash);
         $atomicDeployment->updateDeploymentStatus(DeploymentStatus::RUNNING);
+
+        // Assert
         $record = AtomicDeployment::where('commit_hash', $hash)->first();
         $this->assertTrue((int) $record->deployment_status === DeploymentStatus::RUNNING);
     }
 
-    /**
-     * @test
-     */
-    public function it_confirms_symbolic_link()
+    public function test_it_confirms_symbolic_link()
     {
+        // Collect
         $hash = '123abc';
+
+        // Act
         $atomicDeployment = self::getAtomicDeployment($hash);
         $atomicDeployment->linkDeployment();
+
+        // Assert
         $this->assertTrue($atomicDeployment->confirmSymbolicLink());
     }
 
-    /**
-     * @test
-     */
-    public function it_doesnt_allow_deployments_folder_to_be_subdirectory_of_build_folder()
+    public function test_it_doesnt_allow_deployments_folder_to_be_subdirectory_of_build_folder()
     {
+        // Collect
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
-        $this->expectException(InvalidPathException::class);
         $atomicDeployment = self::getAtomicDeployment();
+
+        // Act
+        $this->expectException(InvalidPathException::class);
+
+        // Act
         $atomicDeployment->createDeploymentDirectory();
     }
 
-    /**
-     * @test
-     */
-    public function it_rolls_back_symbolic_link_to_deployment_detected_on_boot()
+    public function test_it_rolls_back_symbolic_link_to_deployment_detected_on_boot()
     {
+        // Collect
         $atomicDeployment1 = self::getAtomicDeployment();
         $atomicDeployment1->createDeploymentDirectory();
         $atomicDeployment1->linkDeployment();
+
         $this->assertTrue($atomicDeployment1->getDeployment()->isDeployed());
 
         $atomicDeployment2 = self::getAtomicDeployment('abc123');
@@ -110,38 +124,47 @@ class AtomicDeploymentServiceTest extends TestCase
         $this->assertTrue($atomicDeployment2->getDeployment()->isDeployed());
         $this->assertFalse($atomicDeployment1->getDeployment()->isDeployed());
 
+        // Act
         $atomicDeployment2->rollback();
 
+        // Assert
         $this->assertTrue($atomicDeployment1->getDeployment()->isDeployed());
     }
 
-    /**
-     * @test
-     */
-    public function it_calls_closure_on_success()
+    public function test_it_calls_closure_on_success()
     {
-        $this->expectsEvents(DeploymentSuccessful::class);
+        // Collect
+        Event::fake();
         $success = false;
+
+        // Act
         self::getAtomicDeployment()->deploy(function () use (&$success) {
             $success = true;
         });
+
+        // Assert
         $this->assertTrue($success);
+        Event::assertDispatched(DeploymentSuccessful::class);
     }
 
-    /**
-     * @test
-     */
-    public function it_calls_closure_on_failure()
+    public function test_it_calls_closure_on_failure()
     {
+        // Collect
+        Event::fake();
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
-        $this->expectsEvents(DeploymentFailed::class);
-        $this->expectException(InvalidPathException::class);
         $failed = false;
         $atomicDeployment = self::getAtomicDeployment();
+
+        $this->expectException(InvalidPathException::class);
+
+        // Act
         $atomicDeployment->deploy(fn () => '', function () use (&$failed) {
             $failed = true;
         });
+
+        // Assert
         $this->assertTrue($failed);
+        Event::assertDispatched(DeploymentFailed::class);
     }
 }

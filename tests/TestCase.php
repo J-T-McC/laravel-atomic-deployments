@@ -11,18 +11,13 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    const tmpFolder = __DIR__.'/tmp/';
-    public $buildPath;
-    public $deploymentLink;
-    public $deploymentsPath;
-
+    const string TMP_FOLDER = __DIR__ . '/tmp/';
+    public string $buildPath;
+    public string $deploymentLink;
+    public string $deploymentsPath;
     public ?Filesystem $fileSystem = null;
-
     public $mockConsoleOutput = false;
 
-    /**
-     * Setup the test environment.
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -30,22 +25,21 @@ abstract class TestCase extends BaseTestCase
         Artisan::call('migrate', ['--database' => 'sqlite']);
 
         $this->fileSystem = new Filesystem();
-        $this->fileSystem->deleteDirectory(self::tmpFolder);
-        $this->fileSystem->makeDirectory(self::tmpFolder);
+        $this->fileSystem->deleteDirectory(self::TMP_FOLDER);
+        $this->fileSystem->makeDirectory(self::TMP_FOLDER);
 
         $config = $this->app->config->get('atomic-deployments');
 
-        $this->buildPath = static::tmpFolder.$config['build-path'];
-        $this->deploymentLink = static::tmpFolder.$config['deployment-link'];
-        $this->deploymentsPath = static::tmpFolder.$config['deployments-path'];
+        $this->buildPath = self::TMP_FOLDER . $config['build-path'];
+        $this->deploymentLink = self::TMP_FOLDER . $config['deployment-link'];
+        $this->deploymentsPath = self::TMP_FOLDER . $config['deployments-path'];
 
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
         $this->app['config']->set('atomic-deployments.deployment-link', $this->deploymentLink);
         $this->app['config']->set('atomic-deployments.deployments-path', $this->deploymentsPath);
-        $this->app['config']->set('atomic-deployments.migrate', [
-            'migration/*',
-        ]);
-        $this->fileSystem->ensureDirectoryExists($this->buildPath.'/build-contents-folder');
+        $this->app['config']->set('atomic-deployments.migrate', ['migration/*']);
+
+        $this->fileSystem->ensureDirectoryExists($this->buildPath . '/build-contents-folder');
         $this->fileSystem->ensureDirectoryExists($this->deploymentsPath);
 
         Event::fake();
@@ -54,65 +48,45 @@ abstract class TestCase extends BaseTestCase
     public function tearDown(): void
     {
         parent::tearDown();
-        $this->fileSystem->deleteDirectory(self::tmpFolder);
+        $this->fileSystem->deleteDirectory(self::TMP_FOLDER);
     }
 
-    /**
-     * Define environment setup.
-     *
-     * @param \Illuminate\Foundation\Application $app
-     *
-     * @return void
-     */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
-        // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
     }
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [\JTMcC\AtomicDeployments\AtomicDeploymentsServiceProvider::class];
     }
 
-    /**
-     * @param string|array $searchStrings
-     */
-    protected function seeInConsoleOutput($searchStrings)
+    protected function seeInConsoleOutput(string|array $searchStrings): void
     {
-        if (!is_array($searchStrings)) {
-            $searchStrings = [$searchStrings];
-        }
-
+        $searchStrings = (array)$searchStrings;
         $output = Artisan::output();
 
         foreach ($searchStrings as $searchString) {
-            $this->assertStringContainsStringIgnoringCase((string) $searchString, $output);
+            $this->assertStringContainsStringIgnoringCase((string)$searchString, $output);
         }
     }
 
-    /**
-     * @param string|array $searchStrings
-     */
-    protected function dontSeeInConsoleOutput($searchStrings)
+    protected function dontSeeInConsoleOutput(string|array $searchStrings): void
     {
-        if (!is_array($searchStrings)) {
-            $searchStrings = [$searchStrings];
-        }
-
+        $searchStrings = (array)$searchStrings;
         $output = Artisan::output();
 
         foreach ($searchStrings as $searchString) {
-            $this->assertStringNotContainsString((string) $searchString, $output);
+            $this->assertStringNotContainsString((string)$searchString, $output);
         }
     }
 
-    public static function getAtomicDeployment($hash = '')
+    public static function getAtomicDeployment(string $hash = ''): AtomicDeploymentService
     {
         $atomicDeployment = AtomicDeploymentService::create();
 
@@ -123,10 +97,7 @@ abstract class TestCase extends BaseTestCase
         return $atomicDeployment;
     }
 
-    /**
-     * @return Deployment
-     */
-    public static function getDeployment()
+    public static function getDeployment(): Deployment
     {
         return app(Deployment::class);
     }

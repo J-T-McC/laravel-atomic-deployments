@@ -10,7 +10,7 @@ class DeploymentStatusTest extends TestCase
     use EnumTestTrait;
 
     const expected = [
-        'FAILED'  => 0,
+        'FAILED' => 0,
         'RUNNING' => 1,
         'SUCCESS' => 2,
     ];

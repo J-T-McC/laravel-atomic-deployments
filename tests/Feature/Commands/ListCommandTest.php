@@ -11,21 +11,18 @@ class ListCommandTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
-    public function it_lists_available_builds()
+    public function test_it_lists_available_builds()
     {
-        Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
+        // Collect
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-3');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-4');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-5');
 
-        AtomicDeployment::find(1)->delete();
-
+        // Act
         Artisan::call('atomic-deployments:list');
 
+        // Assert
         $this->seeInConsoleOutput([
             'ID',
             'Commit Hash',
