@@ -13,91 +13,107 @@ class DeploymentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
-    public function it_links_and_confirms_deployment()
+    public function test_it_links_and_confirms_deployment()
     {
+        // Collect
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->createDirectory();
         $deployment->link();
+
+        // Assert
         $this->assertTrue($deployment->isDeployed());
     }
 
-    /**
-     * @test
-     */
-    public function it_sets_deployment_directory()
+    public function test_it_sets_deployment_directory()
     {
+        // Collect
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->setDirectory('abc123');
+
+        // Assert
         $this->assertTrue($deployment->getDirectory() === 'abc123');
     }
 
-    /**
-     * @test
-     */
-    public function it_names_deployment_folder_using_config_directory_naming_git()
+    public function test_it_names_deployment_folder_using_config_directory_naming_git()
     {
+        // Collect
         $gitHash = Exec::getGitHash();
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->createDirectory();
+
+        // Assert
         $this->assertTrue($deployment->getDirectoryName() === $gitHash);
     }
 
-    /**
-     * @test
-     */
-    public function it_names_deployment_folder_using_config_directory_naming_rand()
+    public function test_it_names_deployment_folder_using_config_directory_naming_rand()
     {
+        // Collect
         $this->app['config']->set('atomic-deployments.directory-naming', 'rand');
         $gitHash = Exec::getGitHash();
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->createDirectory();
+
+        // Assert
         $this->assertNotEmpty(trim($deployment->getDirectoryName()));
         $this->assertTrue($deployment->getDirectoryName() !== $gitHash);
     }
 
-    /**
-     * @test
-     */
-    public function it_names_deployment_folder_using_config_directory_naming_datetime()
+    public function test_it_names_deployment_folder_using_config_directory_naming_datetime()
     {
+        // Collect
         $this->app['config']->set('atomic-deployments.directory-naming', 'datetime');
         $shouldFind = Carbon::now()->format('Y-m-d_H-i');
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->createDirectory();
+
+        // Assert
         $this->assertNotEmpty(trim($deployment->getDirectoryName()));
         $this->assertStringContainsString($shouldFind, $deployment->getDirectoryName());
     }
 
-    /**
-     * @test
-     */
-    public function it_sets_deployment_path()
+    public function test_it_sets_deployment_path()
     {
+        // Collect
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->setPath();
+
+        // Assert
         $this->assertNotEmpty(trim($deployment->getPath()));
     }
 
-    /**
-     * @test
-     */
-    public function it_creates_a_directory()
+    public function test_it_creates_a_directory()
     {
+        // Collect
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->createDirectory();
+
+        // Assert
         $this->assertTrue($this->fileSystem->exists($deployment->getPath()));
     }
 
-    /**
-     * @test
-     */
-    public function it_updates_model_status()
+    public function test_it_updates_model_status()
     {
+        // Collect
         $deployment = self::getDeployment();
+
+        // Act
         $deployment->updateStatus(DeploymentStatus::SUCCESS);
-        $this->assertTrue((int) AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
+
+        // Assert
+        $this->assertTrue(AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
     }
 }

@@ -7,8 +7,8 @@ The purpose of this package is to introduce local zero-downtime deployments into
 
 ## Requirements
  
-* Laravel 7 | 8
-* PHP ^7.4 | ^8.0
+* Laravel >= 11.x+
+* PHP >= 8.3
 
 ## Installation
 

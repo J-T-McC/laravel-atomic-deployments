@@ -4,7 +4,6 @@ namespace JTMcC\AtomicDeployments\Commands;
 
 use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
-use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 
 class ListCommand extends BaseCommand
 {
@@ -12,26 +11,29 @@ class ListCommand extends BaseCommand
 
     protected $description = 'List currently available deployments';
 
-    public function handle()
+    public function handle(): void
     {
         ConsoleOutput::line('');
         ConsoleOutput::alert('Available Deployments');
 
-        $deployments = AtomicDeployment::select(
-            'id',
-            'commit_hash',
-            'deployment_path',
-            'deployment_link',
-            'deployment_status',
-            'created_at',
-        )->get()->map(function ($deployment) {
-            $deployment->append('isCurrentlyDeployed');
-            $deployment->deployment_status = DeploymentStatus::getNameFromValue($deployment->deployment_status);
+        $deployments = AtomicDeployment::query()
+            ->select([
+                'id',
+                'commit_hash',
+                'deployment_path',
+                'deployment_link',
+                'deployment_status',
+                'created_at',
+            ])
+            ->get()
+            // @phpstan-ignore-next-line
+            ->map(function (AtomicDeployment $deployment) {
+                $deployment->append('is_currently_deployed');
 
-            return $deployment;
-        });
+                return $deployment;
+            });
 
-        if (!$deployments->count()) {
+        if (! $deployments->count()) {
             ConsoleOutput::info('No deployments found');
 
             return;
@@ -39,6 +41,7 @@ class ListCommand extends BaseCommand
 
         $titles = ['ID', 'Commit Hash', 'Path', 'SymLink', 'Status', 'Created', 'Live'];
 
+        // @phpstan-ignore-next-line
         ConsoleOutput::table($titles, $deployments);
         ConsoleOutput::line('');
     }

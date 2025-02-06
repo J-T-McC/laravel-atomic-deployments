@@ -2,25 +2,34 @@
 
 namespace JTMcC\AtomicDeployments\Interfaces;
 
+use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
+
 interface DeploymentInterface
 {
-    public function getBuildPath();
+    public function getBuildPath(): string;
 
-    public function setDirectory(string $name = '');
+    public function setDirectory(string $name = ''): void;
 
-    public function setPath();
+    public function setPath(): void;
 
-    public function getPath();
+    public function getPath(): string;
 
-    public function getCurrentPath();
+    public function getCurrentPath(): string;
 
-    public function copyContents();
+    public function copyContents(): void;
 
-    public function link();
+    public function link(): void;
 
-    public function getLink();
+    public function getLink(): string;
 
-    public function getModel();
+    public function getModel(): AtomicDeployment;
 
-    public function updateStatus(int $status);
+    public function updateStatus(DeploymentStatus $status): void;
+
+    public function isDeployed(): bool;
+
+    public function getDirectoryName(): string;
+
+    public function createDirectory(): void;
 }

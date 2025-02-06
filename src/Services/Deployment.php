@@ -12,23 +12,26 @@ use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Helpers\FileHelper;
 use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 
 class Deployment implements DeploymentInterface
 {
     protected AtomicDeployment $model;
 
     protected string $buildPath;
+
     protected string $deploymentLink;
+
     protected string $deploymentsPath;
+
     protected string $directoryNaming;
 
     protected string $deploymentPath = '';
+
     protected string $deploymentDirectory = '';
 
     /**
      * Deployment constructor.
-     *
-     * @param AtomicDeployment $model
      */
     public function __construct(AtomicDeployment $model)
     {
@@ -67,13 +70,10 @@ class Deployment implements DeploymentInterface
     {
         $this->deploymentDirectory = trim($name);
 
-        //update deployment path to use new directory
+        // update deployment path to use new directory
         $this->setPath();
     }
 
-    /**
-     * @return string
-     */
     public function getDirectory(): string
     {
         return $this->deploymentDirectory;
@@ -83,8 +83,6 @@ class Deployment implements DeploymentInterface
      * Get the current symlinked deployment path.
      *
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
     public function getCurrentPath(): string
     {
@@ -98,20 +96,14 @@ class Deployment implements DeploymentInterface
 
     /**
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
-    public function getDirectoryName()
+    public function getDirectoryName(): string
     {
-        switch ($this->directoryNaming) {
-            case 'datetime':
-                return Carbon::now()->format('Y-m-d_H-i-s');
-            case 'rand':
-                return Str::random(5).time();
-            case 'git':
-            default:
-                return Exec::getGitHash();
-        }
+        return match ($this->directoryNaming) {
+            'datetime' => Carbon::now()->format('Y-m-d_H-i-s'),
+            'rand' => Str::random(5).time(),
+            default => Exec::getGitHash(),
+        };
     }
 
     /**
@@ -138,8 +130,6 @@ class Deployment implements DeploymentInterface
      *
      * @throws ExecuteFailedException
      * @throws InvalidPathException
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -151,19 +141,17 @@ class Deployment implements DeploymentInterface
     }
 
     /**
-     * @param int $status
-     *
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function updateStatus(int $status): void
+    public function updateStatus(DeploymentStatus $status): void
     {
         $this->model->updateOrCreate(
             ['deployment_path' => $this->getPath()],
             [
-                'commit_hash'       => $this->deploymentDirectory,
-                'build_path'        => $this->buildPath,
-                'deployment_link'   => $this->deploymentLink,
+                'commit_hash' => $this->deploymentDirectory,
+                'build_path' => $this->buildPath,
+                'deployment_link' => $this->deploymentLink,
                 'deployment_status' => $status,
             ]
         );
@@ -173,7 +161,7 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function copyContents()
+    public function copyContents(): void
     {
         FileHelper::confirmPathsExist(
             $this->buildPath,
@@ -183,25 +171,16 @@ class Deployment implements DeploymentInterface
         Exec::rsync("{$this->buildPath}/", "{$this->deploymentPath}/");
     }
 
-    /**
-     * @return AtomicDeployment
-     */
     public function getModel(): AtomicDeployment
     {
         return $this->model;
     }
 
-    /**
-     * @return string
-     */
     public function getBuildPath(): string
     {
         return $this->buildPath;
     }
 
-    /**
-     * @return string
-     */
     public function getLink(): string
     {
         return $this->deploymentLink;
@@ -209,8 +188,6 @@ class Deployment implements DeploymentInterface
 
     /**
      * @throws ExecuteFailedException
-     *
-     * @return bool
      */
     public function isDeployed(): bool
     {
