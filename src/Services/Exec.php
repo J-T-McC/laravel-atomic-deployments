@@ -7,12 +7,9 @@ use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 class Exec
 {
     /**
-     * @param string $command
-     * @param array  $arguments
+     * @return string
      *
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
     private static function run(string $command, array $arguments = [])
     {
@@ -25,8 +22,8 @@ class Exec
 
         $result = trim(exec($command, $output, $status));
 
-        //non zero status means execution failed
-        //see https://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/exitcodes.html
+        // non zero status means execution failed
+        // see https://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/exitcodes.html
         if ($status) {
             throw new ExecuteFailedException("resulted in exit code {$status}");
         }
@@ -35,11 +32,9 @@ class Exec
     }
 
     /**
-     * @param $link
+     * @return string
      *
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
     public static function readlink($link)
     {
@@ -47,12 +42,9 @@ class Exec
     }
 
     /**
-     * @param string $link
-     * @param string $path
+     * @return string
      *
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
     public static function ln(string $link, string $path)
     {
@@ -60,12 +52,9 @@ class Exec
     }
 
     /**
-     * @param string $from
-     * @param string $to
+     * @return string
      *
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
     public static function rsync(string $from, string $to)
     {
@@ -73,9 +62,9 @@ class Exec
     }
 
     /**
-     * @throws ExecuteFailedException
-     *
      * @return string
+     *
+     * @throws ExecuteFailedException
      */
     public static function getGitHash()
     {

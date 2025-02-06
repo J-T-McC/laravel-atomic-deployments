@@ -34,7 +34,7 @@ class DeployCommandTest extends TestCase
         ]);
 
         $this->dontSeeInConsoleOutput('Atomic deployment rollback has been requested');
-        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir-1/'));
+        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath.'/test-dir-1/'));
         $this->assertFalse($this->fileSystem->exists($this->deploymentLink));
         $this->assertEmpty(AtomicDeployment::all());
     }
@@ -43,7 +43,7 @@ class DeployCommandTest extends TestCase
     {
         // Collect
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
-        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath . '/test-dir-1/migration/test-folder');
+        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath.'/test-dir-1/migration/test-folder');
 
         // Act
         Artisan::call('atomic-deployments:deploy --dry-run --directory=test-dir-2');
@@ -57,8 +57,8 @@ class DeployCommandTest extends TestCase
         ]);
 
         $this->dontSeeInConsoleOutput('Atomic deployment rollback has been requested');
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir-1/migration/test-folder'));
-        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir-2/migration/test-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir-1/migration/test-folder'));
+        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath.'/test-dir-2/migration/test-folder'));
     }
 
     public function test_it_allows_run_with_mutations()
@@ -79,20 +79,20 @@ class DeployCommandTest extends TestCase
             'Atomic deployment rollback has been requested',
         ]);
 
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir/build-contents-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir/build-contents-folder'));
         $this->assertTrue($this->fileSystem->exists($this->deploymentLink));
 
         $deployment = AtomicDeployment::first();
         $this->assertNotEmpty($deployment);
-        $this->assertTrue((int)$deployment->deployment_status === DeploymentStatus::SUCCESS);
+        $this->assertTrue((int) $deployment->deployment_status === DeploymentStatus::SUCCESS);
     }
 
     public function test_it_allows_migrate_on_run()
     {
         // Collect
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
-        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath . '/test-dir-1/migration/test-folder');
-        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath . '/test-dir-2/migration/test-folder'));
+        $this->fileSystem->ensureDirectoryExists($this->deploymentsPath.'/test-dir-1/migration/test-folder');
+        $this->assertFalse($this->fileSystem->exists($this->deploymentsPath.'/test-dir-2/migration/test-folder'));
 
         // Act
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
@@ -106,8 +106,8 @@ class DeployCommandTest extends TestCase
         ]);
 
         $this->dontSeeInConsoleOutput('Atomic deployment rollback has been requested');
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir-1/migration/test-folder'));
-        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath . '/test-dir-2/migration/test-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir-1/migration/test-folder'));
+        $this->assertTrue($this->fileSystem->exists($this->deploymentsPath.'/test-dir-2/migration/test-folder'));
     }
 
     public function test_it_allows_swapping_between_deployments()
@@ -210,7 +210,7 @@ class DeployCommandTest extends TestCase
         // Collect
         Event::fake();
         $this->app['config']->set('atomic-deployments.build-path', $this->buildPath);
-        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath . '/deployments');
+        $this->app['config']->set('atomic-deployments.deployments-path', $this->buildPath.'/deployments');
 
         // Assert
         $this->expectException(InvalidPathException::class);

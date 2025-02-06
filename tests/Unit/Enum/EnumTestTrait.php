@@ -8,7 +8,7 @@ trait EnumTestTrait
     {
         // Collect
         $class = self::model;
-        $enum = new $class();
+        $enum = new $class;
 
         // Assert
         $this->assertTrue(empty(array_diff_assoc(static::expected, $enum->getConstants())));
@@ -18,7 +18,7 @@ trait EnumTestTrait
     {
         // Collect
         $class = self::model;
-        $enum = new $class();
+        $enum = new $class;
         $props = $enum->getConstants();
         $category = array_keys($props)[0];
         $value = array_values($props)[0];

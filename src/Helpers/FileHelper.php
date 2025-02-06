@@ -12,16 +12,12 @@ use RecursiveIteratorIterator;
 class FileHelper
 {
     /**
-     * @param string ...$paths
-     *
      * @throws InvalidPathException
-     *
-     * @return bool
      */
     public static function confirmPathsExist(string ...$paths): bool
     {
         foreach ($paths as $path) {
-            if (!File::exists($path)) {
+            if (! File::exists($path)) {
                 throw new InvalidPathException("{$path} does not exist");
             }
         }
@@ -32,8 +28,6 @@ class FileHelper
     /**
      * Recursively update symbolic links with new endpoint.
      *
-     * @param $from
-     * @param $to
      *
      * @throws ExecuteFailedException
      */

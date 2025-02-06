@@ -20,13 +20,13 @@ class AtomicDeploymentService
     protected DeploymentInterface $deployment;
 
     protected bool $dryRun;
+
     protected array $migrate;
 
     protected string $initialDeploymentPath = '';
 
     /**
-     * @param mixed ...$args
-     *
+     * @param  mixed  ...$args
      * @return self
      */
     public static function create(...$args)
@@ -34,11 +34,6 @@ class AtomicDeploymentService
         return app(static::class, $args);
     }
 
-    /**
-     * @param DeploymentInterface $deployment
-     * @param array               $migrate
-     * @param bool                $dryRun
-     */
     public function __construct(DeploymentInterface $deployment, array $migrate = [], bool $dryRun = false)
     {
         $this->deployment = $deployment;
@@ -58,9 +53,6 @@ class AtomicDeploymentService
         return $this->deployment;
     }
 
-    /**
-     * @return string
-     */
     public function getInitialDeploymentPath(): string
     {
         return $this->initialDeploymentPath;
@@ -68,9 +60,6 @@ class AtomicDeploymentService
 
     /**
      * Run full deployment.
-     *
-     * @param Closure|null $successCallback
-     * @param Closure|null $failedCallback
      */
     public function deploy(?Closure $successCallback = null, ?Closure $failedCallback = null): void
     {
@@ -110,9 +99,6 @@ class AtomicDeploymentService
         }
     }
 
-    /**
-     * @param int $status
-     */
     public function updateDeploymentStatus(int $status): void
     {
         if ($this->isDryRun()) {
@@ -137,8 +123,6 @@ class AtomicDeploymentService
 
     /**
      * @throws ExecuteFailedException
-     *
-     * @return bool
      */
     public function confirmSymbolicLink(): bool
     {
@@ -150,7 +134,7 @@ class AtomicDeploymentService
             return true;
         }
 
-        if (!$this->deployment->isDeployed()) {
+        if (! $this->deployment->isDeployed()) {
             throw new ExecuteFailedException(
                 'Expected deployment link to direct to '.
                 $this->deployment->getPath().' but found '.
@@ -198,13 +182,13 @@ class AtomicDeploymentService
      */
     public function copyMigrationContents(): void
     {
-        if (!empty($this->initialDeploymentPath) && count($this->migrate)) {
+        if (! empty($this->initialDeploymentPath) && count($this->migrate)) {
             if ($this->isDryRun()) {
                 Output::warn('Dry run - skipping migrations');
             }
 
             collect($this->migrate)->each(function ($pattern) {
-                if (!$this->isDryRun()) {
+                if (! $this->isDryRun()) {
                     Output::info("Running migration for pattern {$pattern}");
                 }
 
@@ -214,7 +198,7 @@ class AtomicDeploymentService
                 foreach (File::glob($rootFrom.$pattern) as $from) {
                     $dir = $from;
 
-                    if (!File::isDirectory($dir)) {
+                    if (! File::isDirectory($dir)) {
                         $dir = File::dirname($dir);
                     }
 
@@ -224,6 +208,7 @@ class AtomicDeploymentService
                     if ($this->isDryRun()) {
                         Output::warn("Dry run - migrate: \r\n - {$from}\r\n - {$to}");
                         Output::line();
+
                         continue;
                     }
 
@@ -232,7 +217,7 @@ class AtomicDeploymentService
                     Exec::rsync($from, $to);
                 }
 
-                if (!$this->isDryRun()) {
+                if (! $this->isDryRun()) {
                     Output::info("Finished migration for pattern {$pattern}");
                 }
             });
@@ -264,18 +249,18 @@ class AtomicDeploymentService
     {
         Output::warn('Atomic deployment rollback has been requested');
 
-        if (!$this->isDryRun()) {
+        if (! $this->isDryRun()) {
             $currentPath = $this->deployment->getCurrentPath();
 
             if (
-                //confirm if we need to revert the link
+                // confirm if we need to revert the link
                 $this->initialDeploymentPath &&
                 $this->initialDeploymentPath !== $currentPath
             ) {
                 Output::emergency("Attempting to link deployment at {$this->initialDeploymentPath}");
 
                 try {
-                    //attempt to revert link to our original path
+                    // attempt to revert link to our original path
                     Exec::ln($this->deployment->getLink(), $this->initialDeploymentPath);
                     if ($this->deployment->getCurrentPath() === $this->initialDeploymentPath) {
                         Output::info('Successfully rolled back symbolic link');
@@ -342,7 +327,7 @@ class AtomicDeploymentService
 
             Output::info("Deleting {$deployment->commit_hash}");
 
-            if (!$this->isDryRun()) {
+            if (! $this->isDryRun()) {
                 $deployment->delete();
                 Output::info('Deployment deleted');
             } else {

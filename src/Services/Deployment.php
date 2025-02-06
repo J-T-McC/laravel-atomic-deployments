@@ -18,17 +18,19 @@ class Deployment implements DeploymentInterface
     protected AtomicDeployment $model;
 
     protected string $buildPath;
+
     protected string $deploymentLink;
+
     protected string $deploymentsPath;
+
     protected string $directoryNaming;
 
     protected string $deploymentPath = '';
+
     protected string $deploymentDirectory = '';
 
     /**
      * Deployment constructor.
-     *
-     * @param AtomicDeployment $model
      */
     public function __construct(AtomicDeployment $model)
     {
@@ -67,13 +69,10 @@ class Deployment implements DeploymentInterface
     {
         $this->deploymentDirectory = trim($name);
 
-        //update deployment path to use new directory
+        // update deployment path to use new directory
         $this->setPath();
     }
 
-    /**
-     * @return string
-     */
     public function getDirectory(): string
     {
         return $this->deploymentDirectory;
@@ -83,8 +82,6 @@ class Deployment implements DeploymentInterface
      * Get the current symlinked deployment path.
      *
      * @throws ExecuteFailedException
-     *
-     * @return string
      */
     public function getCurrentPath(): string
     {
@@ -97,9 +94,9 @@ class Deployment implements DeploymentInterface
     }
 
     /**
-     * @throws ExecuteFailedException
-     *
      * @return string
+     *
+     * @throws ExecuteFailedException
      */
     public function getDirectoryName()
     {
@@ -138,8 +135,6 @@ class Deployment implements DeploymentInterface
      *
      * @throws ExecuteFailedException
      * @throws InvalidPathException
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -151,8 +146,6 @@ class Deployment implements DeploymentInterface
     }
 
     /**
-     * @param int $status
-     *
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
@@ -161,9 +154,9 @@ class Deployment implements DeploymentInterface
         $this->model->updateOrCreate(
             ['deployment_path' => $this->getPath()],
             [
-                'commit_hash'       => $this->deploymentDirectory,
-                'build_path'        => $this->buildPath,
-                'deployment_link'   => $this->deploymentLink,
+                'commit_hash' => $this->deploymentDirectory,
+                'build_path' => $this->buildPath,
+                'deployment_link' => $this->deploymentLink,
                 'deployment_status' => $status,
             ]
         );
@@ -183,25 +176,16 @@ class Deployment implements DeploymentInterface
         Exec::rsync("{$this->buildPath}/", "{$this->deploymentPath}/");
     }
 
-    /**
-     * @return AtomicDeployment
-     */
     public function getModel(): AtomicDeployment
     {
         return $this->model;
     }
 
-    /**
-     * @return string
-     */
     public function getBuildPath(): string
     {
         return $this->buildPath;
     }
 
-    /**
-     * @return string
-     */
     public function getLink(): string
     {
         return $this->deploymentLink;
@@ -209,8 +193,6 @@ class Deployment implements DeploymentInterface
 
     /**
      * @throws ExecuteFailedException
-     *
-     * @return bool
      */
     public function isDeployed(): bool
     {

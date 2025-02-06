@@ -30,7 +30,7 @@ class DeployCommand extends BaseCommand
 
             $deploymentModel = AtomicDeployment::successful()->where('commit_hash', $hash)->first();
 
-            if (!$deploymentModel || !$deploymentModel->hasDeployment) {
+            if (! $deploymentModel || ! $deploymentModel->hasDeployment) {
                 Output::warn("Build not found for hash: {$hash}");
             } else {
                 $atomicDeployment = AtomicDeploymentService::create(

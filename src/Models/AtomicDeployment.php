@@ -43,13 +43,13 @@ class AtomicDeployment extends Model
     }
 
     /**
-     * @throws \JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException
-     *
      * @return bool
+     *
+     * @throws \JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException
      */
     public function getIsCurrentlyDeployedAttribute()
     {
-        if (!$this->hasDeployment) {
+        if (! $this->hasDeployment) {
             return false;
         }
 

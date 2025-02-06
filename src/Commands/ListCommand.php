@@ -31,7 +31,7 @@ class ListCommand extends BaseCommand
             return $deployment;
         });
 
-        if (!$deployments->count()) {
+        if (! $deployments->count()) {
             ConsoleOutput::info('No deployments found');
 
             return;

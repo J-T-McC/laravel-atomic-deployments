@@ -19,9 +19,9 @@ class ExecServiceTest extends TestCase
     public function test_it_can_remote_sync_folders()
     {
         // Collect
-        $from = $this->buildPath . '/to-move';
+        $from = $this->buildPath.'/to-move';
         $to = $this->deploymentsPath;
-        $confirm = $this->deploymentsPath . '/to-move';
+        $confirm = $this->deploymentsPath.'/to-move';
         $this->fileSystem->makeDirectory($from);
 
         // Act

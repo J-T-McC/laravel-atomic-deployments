@@ -24,7 +24,7 @@ class AtomicDeploymentsServiceProvider extends ServiceProvider
         $this->app->bind(DeploymentInterface::class, config('atomic-deployments.deployment-class'));
 
         $this->app->bind(AtomicDeploymentService::class, function ($app, $params) {
-            if (empty($params) || (count($params) && !is_a($params[0], DeploymentInterface::class))) {
+            if (empty($params) || (count($params) && ! is_a($params[0], DeploymentInterface::class))) {
                 array_unshift($params, $app->make(DeploymentInterface::class));
             }
 

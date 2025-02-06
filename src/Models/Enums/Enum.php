@@ -9,9 +9,9 @@ class Enum
     private static ?array $constCacheArray = null;
 
     /**
-     * @throws \ReflectionException
-     *
      * @return array|mixed
+     *
+     * @throws \ReflectionException
      */
     public static function getConstants()
     {
@@ -19,7 +19,7 @@ class Enum
             self::$constCacheArray = [];
         }
         $calledClass = get_called_class();
-        if (!array_key_exists($calledClass, self::$constCacheArray)) {
+        if (! array_key_exists($calledClass, self::$constCacheArray)) {
             $reflect = new ReflectionClass($calledClass);
             self::$constCacheArray[$calledClass] = $reflect->getConstants();
         }
@@ -28,11 +28,9 @@ class Enum
     }
 
     /**
-     * @param int $value
+     * @return false|int|string|null
      *
      * @throws \ReflectionException
-     *
-     * @return false|int|string|null
      */
     public static function getNameFromValue(int $value)
     {

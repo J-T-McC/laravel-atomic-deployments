@@ -38,7 +38,7 @@ class AtomicDeploymentServiceTest extends TestCase
         $atomicDeployment = self::getAtomicDeployment();
 
         // Assert
-        $this->assertTrue(!empty($atomicDeployment->getInitialDeploymentPath()));
+        $this->assertTrue(! empty($atomicDeployment->getInitialDeploymentPath()));
     }
 
     public function test_it_creates_a_deployment_directory()

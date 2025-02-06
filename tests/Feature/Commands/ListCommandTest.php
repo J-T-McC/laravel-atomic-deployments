@@ -4,7 +4,6 @@ namespace Tests\Integration\Commands;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use Tests\TestCase;
 
 class ListCommandTest extends TestCase

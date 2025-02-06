@@ -21,13 +21,13 @@ class FileHelperTest extends TestCase
     public function test_it_updates_symbolic_links_to_new_path()
     {
         // Collect
-        $oldSite = self::TMP_FOLDER . 'build/site';
-        $oldContent = $oldSite . '/content';
-        $oldLink = $oldSite . '/link';
+        $oldSite = self::TMP_FOLDER.'build/site';
+        $oldContent = $oldSite.'/content';
+        $oldLink = $oldSite.'/link';
 
-        $newSite = self::TMP_FOLDER . 'deployments/site';
-        $newContent = $newSite . '/content';
-        $newLink = $newSite . '/link';
+        $newSite = self::TMP_FOLDER.'deployments/site';
+        $newContent = $newSite.'/content';
+        $newLink = $newSite.'/link';
 
         $this->fileSystem->ensureDirectoryExists($oldContent);
         $this->fileSystem->ensureDirectoryExists($newSite);
@@ -39,7 +39,7 @@ class FileHelperTest extends TestCase
         $this->assertTrue(Exec::readlink($oldLink) === $oldContent);
 
         // Act
-        Exec::rsync($oldSite . '/', $newSite . '/');
+        Exec::rsync($oldSite.'/', $newSite.'/');
 
         // Assert
         $this->assertTrue(Exec::readlink($newLink) === $oldContent);
