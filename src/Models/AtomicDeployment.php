@@ -40,11 +40,11 @@ class AtomicDeployment extends Model
         'deployment_status' => DeploymentStatus::class,
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::deleting(function ($model) {
+        static::deleting(function (AtomicDeployment $model) {
             if ($model->is_currently_deployed) {
                 throw new AreYouInsaneException('Cannot delete live deployment');
             }
@@ -53,7 +53,7 @@ class AtomicDeployment extends Model
         });
     }
 
-    public function scopeSuccessful($query)
+    public function scopeSuccessful($query): Builder
     {
         return $query->where('deployment_status', DeploymentStatus::SUCCESS);
     }

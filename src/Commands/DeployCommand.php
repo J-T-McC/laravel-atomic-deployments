@@ -40,6 +40,7 @@ class DeployCommand extends BaseCommand
     {
         Output::info("Updating symlink to previous build: {$hash}");
 
+        /** @var null|AtomicDeployment $deploymentModel */
         $deploymentModel = AtomicDeployment::successful()->where('commit_hash', $hash)->first();
 
         if (! $deploymentModel?->has_deployment) {
@@ -75,8 +76,11 @@ class DeployCommand extends BaseCommand
                 Output::info("Deployment directory option set - Deployment will use directory: {$deployDir}");
                 $atomicDeployment->getDeployment()->setDirectory($deployDir);
             }
-            $atomicDeployment->deploy(fn () => $atomicDeployment->cleanBuilds(config('atomic-deployments.build-limit'))
-            );
+
+            $atomicDeployment
+                ->deploy(
+                    fn () => $atomicDeployment->cleanBuilds(config('atomic-deployments.build-limit'))
+                );
         } catch (Throwable $e) {
             $atomicDeployment->fail();
             Output::throwable($e);

@@ -41,6 +41,7 @@ class ListCommand extends BaseCommand
 
         $titles = ['ID', 'Commit Hash', 'Path', 'SymLink', 'Status', 'Created', 'Live'];
 
+        // @phpstan-ignore-next-line
         ConsoleOutput::table($titles, $deployments);
         ConsoleOutput::line('');
     }
