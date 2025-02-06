@@ -100,7 +100,7 @@ class AtomicDeploymentService
         }
     }
 
-    public function updateDeploymentStatus(int $status): void
+    public function updateDeploymentStatus(DeploymentStatus $status): void
     {
         if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping deployment status update');

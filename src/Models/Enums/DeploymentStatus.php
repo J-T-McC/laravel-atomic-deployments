@@ -2,11 +2,9 @@
 
 namespace JTMcC\AtomicDeployments\Models\Enums;
 
-class DeploymentStatus extends Enum
+enum DeploymentStatus: int
 {
-    const FAILED = 0;
-
-    const RUNNING = 1;
-
-    const SUCCESS = 2;
+    case FAILED = 0;
+    case RUNNING = 1;
+    case SUCCESS = 2;
 }

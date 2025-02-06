@@ -36,6 +36,10 @@ class AtomicDeployment extends Model
         'deployment_link',
     ];
 
+    protected $casts = [
+        'deployment_status' => DeploymentStatus::class,
+    ];
+
     protected static function boot()
     {
         parent::boot();

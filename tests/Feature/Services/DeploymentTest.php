@@ -114,6 +114,6 @@ class DeploymentTest extends TestCase
         $deployment->updateStatus(DeploymentStatus::SUCCESS);
 
         // Assert
-        $this->assertTrue((int) AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
+        $this->assertTrue(AtomicDeployment::first()->deployment_status === DeploymentStatus::SUCCESS);
     }
 }

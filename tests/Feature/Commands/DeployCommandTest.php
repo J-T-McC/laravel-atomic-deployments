@@ -84,7 +84,7 @@ class DeployCommandTest extends TestCase
 
         $deployment = AtomicDeployment::first();
         $this->assertNotEmpty($deployment);
-        $this->assertTrue((int) $deployment->deployment_status === DeploymentStatus::SUCCESS);
+        $this->assertTrue($deployment->deployment_status === DeploymentStatus::SUCCESS);
     }
 
     public function test_it_allows_migrate_on_run()

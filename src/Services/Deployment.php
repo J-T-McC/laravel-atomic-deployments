@@ -12,6 +12,7 @@ use JTMcC\AtomicDeployments\Exceptions\InvalidPathException;
 use JTMcC\AtomicDeployments\Helpers\FileHelper;
 use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
+use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 
 class Deployment implements DeploymentInterface
 {
@@ -143,7 +144,7 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function updateStatus(int $status): void
+    public function updateStatus(DeploymentStatus $status): void
     {
         $this->model->updateOrCreate(
             ['deployment_path' => $this->getPath()],

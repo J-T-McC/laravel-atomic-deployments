@@ -4,7 +4,6 @@ namespace JTMcC\AtomicDeployments\Commands;
 
 use JTMcC\AtomicDeployments\Helpers\ConsoleOutput;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
-use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 
 class ListCommand extends BaseCommand
 {
@@ -26,7 +25,6 @@ class ListCommand extends BaseCommand
             'created_at',
         ])->get()->map(function (AtomicDeployment $deployment) {
             $deployment->append('is_currently_deployed');
-            $deployment->deployment_status = DeploymentStatus::getNameFromValue($deployment->deployment_status);
 
             return $deployment;
         });

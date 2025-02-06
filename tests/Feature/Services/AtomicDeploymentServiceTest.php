@@ -78,7 +78,7 @@ class AtomicDeploymentServiceTest extends TestCase
 
         // Assert
         $record = AtomicDeployment::where('commit_hash', $hash)->first();
-        $this->assertTrue((int) $record->deployment_status === DeploymentStatus::RUNNING);
+        $this->assertTrue($record->deployment_status === DeploymentStatus::RUNNING);
     }
 
     public function test_it_confirms_symbolic_link()

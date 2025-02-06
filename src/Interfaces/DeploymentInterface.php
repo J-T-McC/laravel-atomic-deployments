@@ -2,6 +2,8 @@
 
 namespace JTMcC\AtomicDeployments\Interfaces;
 
+use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
+
 interface DeploymentInterface
 {
     public function getBuildPath();
@@ -22,7 +24,7 @@ interface DeploymentInterface
 
     public function getModel();
 
-    public function updateStatus(int $status);
+    public function updateStatus(DeploymentStatus $status);
 
     public function isDeployed(): bool;
 
