@@ -6,10 +6,11 @@ use Illuminate\Console\Command;
 
 /**
  * @method static void line(string $string)
+ * @method static void warn(string $string)
  * @method static void alert(string $string)
  * @method static void error(string $string)
  * @method static void info(string $string)
- * @method static void table(string $string)
+ * @method static void table(array $titles, array $rows)
  */
 class ConsoleOutput
 {

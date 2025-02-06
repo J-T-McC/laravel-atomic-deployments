@@ -18,6 +18,11 @@ use JTMcC\AtomicDeployments\Services\Exec;
  *
  * @property-read bool $has_deployment
  * @property-read bool $is_currently_deployed
+ * @property string $commit_hash
+ * @property int $deployment_status
+ * @property string $build_path
+ * @property string $deployment_path
+ * @property string $deployment_link
  */
 class AtomicDeployment extends Model
 {

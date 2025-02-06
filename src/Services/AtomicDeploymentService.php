@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JTMcC\AtomicDeployments\Services;
 
 use Closure;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Pluralizer;
 use JTMcC\AtomicDeployments\Events\DeploymentFailed;
@@ -310,13 +311,15 @@ class AtomicDeploymentService
             ->limit($limit)
             ->pluck('id');
 
-        $buildsToRemove = AtomicDeployment::whereNotIn('id', $buildIDs)->get();
+        /* @var Collection<AtomicDeployment> $buildsToRemove */
+        $buildsToRemove = AtomicDeployment::query()->whereNotIn('id', $buildIDs)->get();
 
         $countOfBuildsToRemove = $buildsToRemove->count();
 
         Output::info('Found '.$countOfBuildsToRemove.' '.Pluralizer::plural('folder', $countOfBuildsToRemove).' to be removed');
 
         foreach ($buildsToRemove as $deployment) {
+
             if ($deployment->is_currently_deployed) {
                 Output::warn('Current linked path has appeared in the directory cleaning logic');
                 Output::warn('This either means you currently have an old build deployed or there is a problem with your deployment data');
@@ -328,6 +331,7 @@ class AtomicDeploymentService
             Output::info("Deleting {$deployment->commit_hash}");
 
             if (! $this->isDryRun()) {
+                // @phpstan-ignore-next-line
                 $deployment->delete();
                 Output::info('Deployment deleted');
             } else {

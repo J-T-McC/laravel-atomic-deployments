@@ -94,21 +94,15 @@ class Deployment implements DeploymentInterface
     }
 
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
      */
-    public function getDirectoryName()
+    public function getDirectoryName(): string
     {
-        switch ($this->directoryNaming) {
-            case 'datetime':
-                return Carbon::now()->format('Y-m-d_H-i-s');
-            case 'rand':
-                return Str::random(5).time();
-            case 'git':
-            default:
-                return Exec::getGitHash();
-        }
+        return match ($this->directoryNaming) {
+            'datetime' => Carbon::now()->format('Y-m-d_H-i-s'),
+            'rand' => Str::random(5).time(),
+            default => Exec::getGitHash(),
+        };
     }
 
     /**

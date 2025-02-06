@@ -23,4 +23,10 @@ interface DeploymentInterface
     public function getModel();
 
     public function updateStatus(int $status);
+
+    public function isDeployed(): bool;
+
+    public function getDirectoryName(): string;
+
+    public function createDirectory();
 }
