@@ -3,6 +3,7 @@
 namespace JTMcC\AtomicDeployments\Helpers;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @method static void line(string $string)
@@ -10,7 +11,7 @@ use Illuminate\Console\Command;
  * @method static void alert(string $string)
  * @method static void error(string $string)
  * @method static void info(string $string)
- * @method static void table(array $titles, array $rows)
+ * @method static void table(string[] $titles, Collection $rows)
  */
 class ConsoleOutput
 {
@@ -21,7 +22,7 @@ class ConsoleOutput
         static::$runningCommand = $runningCommand;
     }
 
-    public static function __callStatic(string $method, $arguments)
+    public static function __callStatic(string $method, array $arguments)
     {
         if (! static::$runningCommand) {
             return;

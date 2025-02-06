@@ -10,12 +10,12 @@ use JTMcC\AtomicDeployments\Services\AtomicDeploymentService;
 
 class AtomicDeploymentsServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/atomic-deployments.php', 'atomic-deployments');
         $this->registerPublishables();

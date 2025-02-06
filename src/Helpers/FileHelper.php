@@ -28,17 +28,18 @@ class FileHelper
     /**
      * Recursively update symbolic links with new endpoint.
      *
-     *
      * @throws ExecuteFailedException
      */
-    public static function recursivelyUpdateSymlinks($from, $to)
+    public static function recursivelyUpdateSymlinks(string $from, string $to): void
     {
         $dir = new RecursiveDirectoryIterator($to);
+
         foreach (new RecursiveIteratorIterator($dir) as $file) {
             if (is_link($file)) {
                 $link = $file->getPathName();
                 $target = $file->getLinkTarget();
                 $newPath = str_replace($from, $to, $target);
+
                 if ($target !== $newPath) {
                     Exec::ln($link, $newPath);
                 }

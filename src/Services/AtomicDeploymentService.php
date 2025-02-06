@@ -15,6 +15,7 @@ use JTMcC\AtomicDeployments\Helpers\FileHelper;
 use JTMcC\AtomicDeployments\Interfaces\DeploymentInterface;
 use JTMcC\AtomicDeployments\Models\AtomicDeployment;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
+use Throwable;
 
 class AtomicDeploymentService
 {
@@ -28,9 +29,8 @@ class AtomicDeploymentService
 
     /**
      * @param  mixed  ...$args
-     * @return self
      */
-    public static function create(...$args)
+    public static function create(...$args): self
     {
         return app(static::class, $args);
     }
@@ -46,10 +46,7 @@ class AtomicDeploymentService
         $this->initialDeploymentPath = $deployment->getCurrentPath();
     }
 
-    /**
-     * @return DeploymentInterface
-     */
-    public function getDeployment()
+    public function getDeployment(): DeploymentInterface
     {
         return $this->deployment;
     }
@@ -59,9 +56,6 @@ class AtomicDeploymentService
         return $this->initialDeploymentPath;
     }
 
-    /**
-     * Run full deployment.
-     */
     public function deploy(?Closure $successCallback = null, ?Closure $failedCallback = null): void
     {
         try {
@@ -72,7 +66,7 @@ class AtomicDeploymentService
             Output::info('Checking for previous deployment');
 
             Output::info($this->initialDeploymentPath ?
-                "Previous deployment detected at {$this->initialDeploymentPath}" :
+                sprintf('Previous deployment detected at %s', $this->initialDeploymentPath) :
                 'No previous deployment detected for this link');
 
             $this->updateDeploymentStatus(DeploymentStatus::RUNNING);
@@ -91,9 +85,10 @@ class AtomicDeploymentService
             if ($successCallback) {
                 $successCallback($this);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->fail();
             Output::throwable($e);
+
             if ($failedCallback) {
                 $failedCallback($this);
             }
@@ -112,7 +107,7 @@ class AtomicDeploymentService
 
     public function linkDeployment(): void
     {
-        Output::info("Creating symbolic link: {$this->deployment->getLink()} -> {$this->deployment->getPath()}");
+        Output::info(sprintf('Creating symbolic link: %s -> %s', $this->deployment->getLink(), $this->deployment->getPath()));
         if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping symbolic link deployment');
 
@@ -137,9 +132,11 @@ class AtomicDeploymentService
 
         if (! $this->deployment->isDeployed()) {
             throw new ExecuteFailedException(
-                'Expected deployment link to direct to '.
-                $this->deployment->getPath().' but found '.
-                $this->deployment->getCurrentPath()
+                sprintf(
+                    'Expected deployment link to direct to %s but found %s',
+                    $this->deployment->getPath(),
+                    $this->deployment->getCurrentPath()
+                )
             );
         }
 
@@ -150,7 +147,7 @@ class AtomicDeploymentService
 
     public function createDeploymentDirectory(): void
     {
-        Output::info("Creating directory at {$this->deployment->getPath()}");
+        Output::info(sprintf('Creating directory at %s', $this->deployment->getPath()));
 
         if ($this->isDryRun()) {
             Output::warn('Dry run - Skipping creating deployment directory');
@@ -188,9 +185,9 @@ class AtomicDeploymentService
                 Output::warn('Dry run - skipping migrations');
             }
 
-            collect($this->migrate)->each(function ($pattern) {
+            collect($this->migrate)->each(function (string $pattern): void {
                 if (! $this->isDryRun()) {
-                    Output::info("Running migration for pattern {$pattern}");
+                    Output::info(sprintf('Running migration for pattern %s', $pattern));
                 }
 
                 $rootFrom = rtrim($this->initialDeploymentPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
@@ -207,7 +204,7 @@ class AtomicDeploymentService
                     $to = str_replace($rootFrom, $rootTo, $from);
 
                     if ($this->isDryRun()) {
-                        Output::warn("Dry run - migrate: \r\n - {$from}\r\n - {$to}");
+                        Output::warn(sprintf("Dry run - migrate: \r\n - %s\r\n - %s", $from, $to));
                         Output::line();
 
                         continue;
@@ -219,7 +216,7 @@ class AtomicDeploymentService
                 }
 
                 if (! $this->isDryRun()) {
-                    Output::info("Finished migration for pattern {$pattern}");
+                    Output::info(sprintf('Finished migration for pattern %s', $pattern));
                 }
             });
         }
@@ -228,7 +225,7 @@ class AtomicDeploymentService
     /**
      * @throws ExecuteFailedException
      */
-    public function updateSymlinks()
+    public function updateSymlinks(): void
     {
         Output::info('Correcting old symlinks that still reference the build directory');
 
@@ -258,7 +255,7 @@ class AtomicDeploymentService
                 $this->initialDeploymentPath &&
                 $this->initialDeploymentPath !== $currentPath
             ) {
-                Output::emergency("Attempting to link deployment at {$this->initialDeploymentPath}");
+                Output::emergency(sprintf('Attempting to link deployment at %s', $this->initialDeploymentPath));
 
                 try {
                     // attempt to revert link to our original path
@@ -295,8 +292,9 @@ class AtomicDeploymentService
 
     public function shutdown(): void
     {
-        if ($error = error_get_last()) {
+        if (error_get_last()) {
             Output::error('Error detected during shutdown, requesting rollback');
+
             $this->fail();
         }
     }
@@ -304,7 +302,7 @@ class AtomicDeploymentService
     public function cleanBuilds(int $limit): void
     {
         Output::alert('Running Build Cleanup');
-        Output::info("Max deployment directories allowed set to {$limit}");
+        Output::info(sprintf('Max deployment directories allowed set to %d', $limit));
 
         $buildIDs = AtomicDeployment::successful()
             ->orderBy('id', 'desc')
@@ -316,7 +314,7 @@ class AtomicDeploymentService
 
         $countOfBuildsToRemove = $buildsToRemove->count();
 
-        Output::info('Found '.$countOfBuildsToRemove.' '.Pluralizer::plural('folder', $countOfBuildsToRemove).' to be removed');
+        Output::info(sprintf('Found %d %s to be removed', $countOfBuildsToRemove, Pluralizer::plural('folder', $countOfBuildsToRemove)));
 
         foreach ($buildsToRemove as $deployment) {
 
@@ -328,7 +326,7 @@ class AtomicDeploymentService
                 return;
             }
 
-            Output::info("Deleting {$deployment->commit_hash}");
+            Output::info(sprintf('Deleting %s', $deployment->commit_hash));
 
             if (! $this->isDryRun()) {
                 // @phpstan-ignore-next-line

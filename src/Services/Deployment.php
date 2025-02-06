@@ -161,7 +161,7 @@ class Deployment implements DeploymentInterface
      * @throws ExecuteFailedException
      * @throws InvalidPathException
      */
-    public function copyContents()
+    public function copyContents(): void
     {
         FileHelper::confirmPathsExist(
             $this->buildPath,

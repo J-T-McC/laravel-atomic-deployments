@@ -7,66 +7,52 @@ use JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException;
 class Exec
 {
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
      */
-    private static function run(string $command, array $arguments = [])
+    private static function run(string $command, array $arguments = []): string
     {
-        $arguments = array_map(fn ($argument) => escapeshellarg($argument), $arguments);
-
+        $arguments = array_map('escapeshellarg', $arguments);
         $command = escapeshellcmd(count($arguments) ? sprintf($command, ...$arguments) : $command);
 
         $output = [];
         $status = null;
-
         $result = trim(exec($command, $output, $status));
 
-        // non zero status means execution failed
-        // see https://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/exitcodes.html
         if ($status) {
-            throw new ExecuteFailedException("resulted in exit code {$status}");
+            throw new ExecuteFailedException(sprintf('Command resulted in exit code %d', $status));
         }
 
         return $result;
     }
 
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
      */
-    public static function readlink($link)
+    public static function readlink(string $link): string
     {
         return self::run('readlink -f %s', [$link]);
     }
 
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
      */
-    public static function ln(string $link, string $path)
+    public static function ln(string $link, string $path): string
     {
         return self::run('ln -sfn %s %s', [$path, $link]);
     }
 
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
      */
-    public static function rsync(string $from, string $to)
+    public static function rsync(string $from, string $to): string
     {
         return self::run('rsync -aW --no-compress %s %s', [$from, $to]);
     }
 
     /**
-     * @return string
-     *
      * @throws ExecuteFailedException
      */
-    public static function getGitHash()
+    public static function getGitHash(): string
     {
         return self::run('git log --pretty="%h" -n1');
     }

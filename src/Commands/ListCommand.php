@@ -16,18 +16,22 @@ class ListCommand extends BaseCommand
         ConsoleOutput::line('');
         ConsoleOutput::alert('Available Deployments');
 
-        $deployments = AtomicDeployment::query()->select([
-            'id',
-            'commit_hash',
-            'deployment_path',
-            'deployment_link',
-            'deployment_status',
-            'created_at',
-        ])->get()->map(function (AtomicDeployment $deployment) {
-            $deployment->append('is_currently_deployed');
+        $deployments = AtomicDeployment::query()
+            ->select([
+                'id',
+                'commit_hash',
+                'deployment_path',
+                'deployment_link',
+                'deployment_status',
+                'created_at',
+            ])
+            ->get()
+            // @phpstan-ignore-next-line
+            ->map(function (AtomicDeployment $deployment) {
+                $deployment->append('is_currently_deployed');
 
-            return $deployment;
-        });
+                return $deployment;
+            });
 
         if (! $deployments->count()) {
             ConsoleOutput::info('No deployments found');
