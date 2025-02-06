@@ -2,6 +2,8 @@
 
 namespace JTMcC\AtomicDeployments\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
@@ -9,6 +11,14 @@ use JTMcC\AtomicDeployments\Exceptions\AreYouInsaneException;
 use JTMcC\AtomicDeployments\Models\Enums\DeploymentStatus;
 use JTMcC\AtomicDeployments\Services\Exec;
 
+/**
+ * @mixin Builder
+ *
+ * @method static Builder successful()
+ *
+ * @property-read bool $has_deployment
+ * @property-read bool $is_currently_deployed
+ */
 class AtomicDeployment extends Model
 {
     use SoftDeletes;
@@ -25,7 +35,7 @@ class AtomicDeployment extends Model
     {
         parent::boot();
         static::deleting(function ($model) {
-            if ($model->isCurrentlyDeployed) {
+            if ($model->is_currently_deployed) {
                 throw new AreYouInsaneException('Cannot delete live deployment');
             }
             $model->deleteDeployment();
@@ -37,28 +47,23 @@ class AtomicDeployment extends Model
         return $query->where('deployment_status', DeploymentStatus::SUCCESS);
     }
 
-    public function getHasDeploymentAttribute()
+    public function hasDeployment(): Attribute
     {
-        return File::isDirectory($this->deployment_path);
+        return Attribute::make(
+            get: fn () => File::isDirectory($this->deployment_path),
+        );
     }
 
-    /**
-     * @return bool
-     *
-     * @throws \JTMcC\AtomicDeployments\Exceptions\ExecuteFailedException
-     */
-    public function getIsCurrentlyDeployedAttribute()
+    public function isCurrentlyDeployed(): Attribute
     {
-        if (! $this->hasDeployment) {
-            return false;
-        }
-
-        return Exec::readlink($this->deployment_link) === $this->deployment_path;
+        return Attribute::make(
+            get: fn () => $this->has_deployment && Exec::readlink($this->deployment_link) === $this->deployment_path,
+        );
     }
 
     public function deleteDeployment()
     {
-        if ($this->hasDeployment) {
+        if ($this->has_deployment) {
             File::deleteDirectory($this->deployment_path);
         }
 

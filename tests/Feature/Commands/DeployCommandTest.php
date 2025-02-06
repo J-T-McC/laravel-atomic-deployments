@@ -116,14 +116,14 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
         $deployment1 = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append(
-            'isCurrentlyDeployed'
+            'is_currently_deployed'
         )->toArray();
         $deployment2 = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append(
-            'isCurrentlyDeployed'
+            'is_currently_deployed'
         )->toArray();
 
-        $this->assertFalse($deployment1['isCurrentlyDeployed']);
-        $this->assertTrue($deployment2['isCurrentlyDeployed']);
+        $this->assertFalse($deployment1['is_currently_deployed']);
+        $this->assertTrue($deployment2['is_currently_deployed']);
 
         // Act
         Artisan::call('atomic-deployments:deploy --hash=test-dir-fake');
@@ -144,14 +144,14 @@ class DeployCommandTest extends TestCase
         ]);
 
         $deployment1 = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append(
-            'isCurrentlyDeployed'
+            'is_currently_deployed'
         )->toArray();
         $deployment2 = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append(
-            'isCurrentlyDeployed'
+            'is_currently_deployed'
         )->toArray();
 
-        $this->assertTrue($deployment1['isCurrentlyDeployed']);
-        $this->assertFalse($deployment2['isCurrentlyDeployed']);
+        $this->assertTrue($deployment1['is_currently_deployed']);
+        $this->assertFalse($deployment2['is_currently_deployed']);
     }
 
     public function test_it_cleans_old_build_folders_based_on_build_limit()
@@ -190,18 +190,18 @@ class DeployCommandTest extends TestCase
         Artisan::call('atomic-deployments:deploy --directory=test-dir-1');
         Artisan::call('atomic-deployments:deploy --directory=test-dir-2');
         $deployment = AtomicDeployment::where('commit_hash', 'test-dir-2')->first()->append(
-            'isCurrentlyDeployed'
+            'is_currently_deployed'
         )->toArray();
-        $this->assertTrue($deployment['isCurrentlyDeployed']);
+        $this->assertTrue($deployment['is_currently_deployed']);
 
         // Act
         Artisan::call('atomic-deployments:deploy --hash=test-dir-1');
 
         // Assert
         $deployment = AtomicDeployment::where('commit_hash', 'test-dir-1')->first()->append(
-            'isCurrentlyDeployed'
+            'is_currently_deployed'
         )->toArray();
-        $this->assertTrue($deployment['isCurrentlyDeployed']);
+        $this->assertTrue($deployment['is_currently_deployed']);
         Event::assertDispatched(DeploymentSuccessful::class);
     }
 

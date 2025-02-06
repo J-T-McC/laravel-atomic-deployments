@@ -317,7 +317,7 @@ class AtomicDeploymentService
         Output::info('Found '.$countOfBuildsToRemove.' '.Pluralizer::plural('folder', $countOfBuildsToRemove).' to be removed');
 
         foreach ($buildsToRemove as $deployment) {
-            if ($deployment->isCurrentlyDeployed) {
+            if ($deployment->is_currently_deployed) {
                 Output::warn('Current linked path has appeared in the directory cleaning logic');
                 Output::warn('This either means you currently have an old build deployed or there is a problem with your deployment data');
                 Output::warn('Skipping deletion');

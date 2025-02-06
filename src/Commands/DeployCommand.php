@@ -18,7 +18,7 @@ class DeployCommand extends BaseCommand
 
     protected $description = 'Deploy a clone of your latest build and attach symlink';
 
-    public function handle()
+    public function handle(): void
     {
         Output::alert('Running Atomic Deployment');
 
@@ -30,7 +30,8 @@ class DeployCommand extends BaseCommand
 
             $deploymentModel = AtomicDeployment::successful()->where('commit_hash', $hash)->first();
 
-            if (! $deploymentModel || ! $deploymentModel->hasDeployment) {
+            /** @var AtomicDeployment $deploymentModel */
+            if (! $deploymentModel || ! $deploymentModel->has_deployment) {
                 Output::warn("Build not found for hash: {$hash}");
             } else {
                 $atomicDeployment = AtomicDeploymentService::create(
